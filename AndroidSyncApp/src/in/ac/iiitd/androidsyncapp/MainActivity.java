@@ -1,7 +1,7 @@
 package in.ac.iiitd.androidsyncapp;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.Menu;
@@ -10,9 +10,6 @@ import android.widget.SeekBar;
 
 public class MainActivity extends Activity {
 
-	private static int activityID = 5687;
-	private static final int enableBT = ++activityID, enableDiscovery = ++activityID;
-	private BluetoothAdapter myBT;
 	public static SeekBar bar;
 	private static MediaPlayer mp;
 
@@ -34,6 +31,11 @@ public class MainActivity extends Activity {
 		new Thread(new BackgroundTask()).start();
 		//new Thread(new MedaiStart()).start();
 	}
+	
+	public void switchMaster(View view){
+		Intent menuIntent = new Intent(this, ActivityMaster.class);
+		startActivity(menuIntent);
+	}
 
 	class MedaiStart implements Runnable{
 
@@ -41,6 +43,7 @@ public class MainActivity extends Activity {
 		public void run() {
 			// TODO Auto-generated method stub
 			try{
+				
 				mp = MediaPlayer.create(getApplicationContext(), R.raw.video_file_1);
 				mp.start();
 			}catch(Exception e){
@@ -50,4 +53,6 @@ public class MainActivity extends Activity {
 			mp = null;
 		}
 	}
+	
+	
 }

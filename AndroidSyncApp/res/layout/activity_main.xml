@@ -8,13 +8,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
-    <SeekBar
-        android:id="@+id/seekBar1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="159dp" />
-
     <RadioButton
         android:id="@+id/radioButton1"
         android:layout_width="wrap_content"
@@ -23,7 +16,8 @@
         android:layout_alignParentTop="true"
         android:layout_alignRight="@+id/seekBar1"
         android:layout_marginTop="27dp"
-        android:text="@string/master" />
+        android:text="@string/master" 
+        android:onClick="switchMaster"/>
 
     <Button
         android:id="@+id/button1"
@@ -43,5 +37,21 @@
         android:layout_alignRight="@+id/radioButton1"
         android:layout_below="@+id/radioButton1"
         android:text="@string/slave" />
+
+    <SeekBar
+        android:id="@+id/seekBar1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="42dp" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/radioButton2"
+        android:layout_marginTop="19dp"
+        android:text="@string/pairedBT" />
 
 </RelativeLayout>

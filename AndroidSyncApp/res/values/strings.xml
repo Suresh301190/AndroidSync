@@ -7,5 +7,8 @@
     <string name="play">PLAY</string>
     <string name="master">Act as Master</string>
     <string name = "slave">Act as Slave</string>
+    <string name="pairedBT">Paired Devices</string>
+    <string name="master_text">Now its working</string>
+    <string name="m_enableBT">Enable Bluetooth</string>
 
 </resources>
