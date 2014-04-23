@@ -31,8 +31,8 @@ public class MainActivity extends Activity {
 	}
 
 	public void startMP(View view){		
-		//new Thread(new BackgroundTask()).start();
-		new Thread(new MedaiStart()).start();
+		new Thread(new BackgroundTask()).start();
+		//new Thread(new MedaiStart()).start();
 	}
 
 	class MedaiStart implements Runnable{

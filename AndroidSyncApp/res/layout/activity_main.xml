@@ -8,28 +8,40 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
-    <TextView
-        android:id="@+id/textView1"
+    <SeekBar
+        android:id="@+id/seekBar1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="159dp" />
+
+    <RadioButton
+        android:id="@+id/radioButton1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+        android:layout_alignLeft="@+id/seekBar1"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@+id/seekBar1"
+        android:layout_marginTop="27dp"
+        android:text="@string/master" />
 
     <Button
         android:id="@+id/button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignTop="@+id/textView1"
-        android:layout_marginRight="24dp"
-        android:text="@string/play"
-        android:onClick="startMP" />
+        android:layout_above="@+id/seekBar1"
+        android:layout_alignLeft="@+id/seekBar1"
+        android:layout_marginBottom="58dp"
+        android:onClick="startMP"
+        android:text="@string/play" />
 
-    <SeekBar
-        android:id="@+id/seekBar1"
-        android:layout_width="match_parent"
+    <RadioButton
+        android:id="@+id/radioButton2"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/button1"
-        android:layout_marginTop="133dp" />
+        android:layout_alignLeft="@+id/radioButton1"
+        android:layout_alignRight="@+id/radioButton1"
+        android:layout_below="@+id/radioButton1"
+        android:text="@string/slave" />
 
 </RelativeLayout>
