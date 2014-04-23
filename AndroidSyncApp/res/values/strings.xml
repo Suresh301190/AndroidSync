@@ -3,12 +3,15 @@
 
     <string name="app_name">AndroidSyncApp</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="play">PLAY</string>
-    <string name="master">Act as Master</string>
-    <string name = "slave">Act as Slave</string>
-    <string name="pairedBT">Paired Devices</string>
-    <string name="master_text">Now its working</string>
-    <string name="m_enableBT">Enable Bluetooth</string>
+    <string name="o_hello_world">Hello world!</string>
+    <string name="o_play">PLAY</string>
+    <string name="o_master">Act as Master</string>
+    <string name ="o_slave">Act as Slave</string>
+    <string name="o_pairedBT">Paired Devices</string>
+    <string name="o_master_text">Now its working</string>
+    <string name="o_m_enableBT">Enable Bluetooth</string>
+    <string name="o_URL_m">Enter a Valid URL</string>
+    <string name="o_download_m">Click to Download</string>
+<!--   <string name="help_m">HELP</string> -->
 
 </resources>

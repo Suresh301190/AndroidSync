@@ -36,6 +36,11 @@ public class MainActivity extends Activity {
 		Intent menuIntent = new Intent(this, ActivityMaster.class);
 		startActivity(menuIntent);
 	}
+	
+	public void switchSlave(View view){
+		Intent menuIntent = new Intent(this, ActivitySlave.class);
+		startActivity(menuIntent);
+	}
 
 	class MedaiStart implements Runnable{
 

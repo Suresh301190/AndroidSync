@@ -28,6 +28,7 @@
             </intent-filter>
         </activity>
         <activity android:name="in.ac.iiitd.androidsyncapp.ActivityMaster"></activity>
+        <activity android:name="in.ac.iiitd.androidsyncapp.ActivitySlave"></activity>
     </application>
 
 </manifest>

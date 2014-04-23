@@ -16,7 +16,7 @@
         android:layout_alignParentTop="true"
         android:layout_alignRight="@+id/seekBar1"
         android:layout_marginTop="27dp"
-        android:text="@string/master" 
+        android:text="@string/o_master" 
         android:onClick="switchMaster"/>
 
     <Button
@@ -27,7 +27,7 @@
         android:layout_alignLeft="@+id/seekBar1"
         android:layout_marginBottom="58dp"
         android:onClick="startMP"
-        android:text="@string/play" />
+        android:text="@string/o_play" />
 
     <RadioButton
         android:id="@+id/radioButton2"
@@ -36,7 +36,7 @@
         android:layout_alignLeft="@+id/radioButton1"
         android:layout_alignRight="@+id/radioButton1"
         android:layout_below="@+id/radioButton1"
-        android:text="@string/slave" />
+        android:text="@string/o_slave" />
 
     <SeekBar
         android:id="@+id/seekBar1"
@@ -52,6 +52,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/radioButton2"
         android:layout_marginTop="19dp"
-        android:text="@string/pairedBT" />
+        android:text="@string/o_pairedBT" />
 
 </RelativeLayout>
