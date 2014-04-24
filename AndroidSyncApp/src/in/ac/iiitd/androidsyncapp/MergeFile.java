@@ -30,13 +30,14 @@ public class MergeFile extends AsyncTask<Bundle, Void, Void>{
 			InputStream o_is;
 			byte[] o_buff = new byte[Helper.o_buffLength];
 			
-			for(Bundle o_config:bundles){
+			for(Bundle o_config:Helper.o_sort_config){
 				o_is = new FileInputStream(o_config.getString("path"));
 				int len;
 				while((len = o_is.read(o_buff, 0, Helper.o_buffLength)) != -1){
 					o_os.write(o_buff, 0, len);
 				}
 				o_is.close();
+				new File(o_config.getString("path")).delete();
 			}			
 			o_os.close();
 			

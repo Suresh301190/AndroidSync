@@ -56,6 +56,7 @@ public class ActivityMaster extends Activity{
 		setContentView(R.layout.activity_master);
 		o_myBT = BluetoothAdapter.getDefaultAdapter();
 		Helper.o_update = (TextView) findViewById(R.id.o_dl_update);
+		Helper.o_prog_bar = (SeekBar) findViewById(R.id.o_progress);
 	}
 
 	public void download_file(View view){
@@ -74,11 +75,6 @@ public class ActivityMaster extends Activity{
 				//o_config.putString("url", "https://dl.dropboxusercontent.com/u/108785914/TechReport.pdf");
 				Helper.o_config.putString("url", "https://dl.dropbox.com/u/9097066/image.png");
 				Helper.o_config.putInt("id", 1);
-
-				Helper.o_url = new URL(Helper.o_config.getString("url"));
-				String o_s = Helper.o_config.getString("url");
-				Helper.o_config.putString("ext", o_s.substring(o_s.length()-4, o_s.length()));
-				Log.v(o_master, "Extension : " + Helper.o_config.getString("ext"));
 
 				new StartOfMain().execute();
 

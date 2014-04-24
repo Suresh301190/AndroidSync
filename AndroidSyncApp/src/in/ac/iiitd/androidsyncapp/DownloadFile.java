@@ -55,11 +55,8 @@ public class DownloadFile extends AsyncTask<Bundle, Integer, Integer>{
 			Log.v(o_download, "bytes=" + o_config.getInt("start") + '-' + o_config.getInt("end"));
 			Log.v(o_download, "Response Code : " + conn.getResponseCode());
 
-			if(conn.getResponseCode() == HttpURLConnection.HTTP_OK || conn.getResponseCode() == HttpURLConnection.HTTP_PARTIAL){
+			if(conn.getResponseCode() == HttpURLConnection.HTTP_PARTIAL){
 				Log.v(o_download, "Partial Download possible... Downloading");
-
-				//Make directory /AndroidSync
-				Helper.o_path.mkdir();
 
 				o_os = new FileOutputStream(new File(Helper.o_path + "/image" + o_config.getInt("id")));// +o_config.getString("ext")));
 
@@ -92,7 +89,7 @@ public class DownloadFile extends AsyncTask<Bundle, Integer, Integer>{
 				}
 			}
 			else{
-				o_config.putString("isDone", "Part" + o_config.getInt("id") + " failed... Trying Again");					
+				o_config.putString("isDone", "Partial Downloading Not possible");					
 			}
 
 		} catch (Exception e) {

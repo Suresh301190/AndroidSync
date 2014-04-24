@@ -4,8 +4,10 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.os.Environment;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 /**
@@ -14,7 +16,7 @@ import android.widget.TextView;
  * @author Suresh
  *
  */
-public abstract class Helper {
+public abstract class Helper extends Activity{
 	
 	/**
 	 * Configuration which is master to all
@@ -57,13 +59,19 @@ public abstract class Helper {
 	static boolean[] isDone;
 	
 	/**
+	 * To set download Progress
+	 */
+	public static int o_progress;
+	public static SeekBar o_prog_bar;
+	
+	/**
 	 * To check if all process is done
 	 * @return true if each part is downloaded
 	 */
 	public static synchronized boolean o_allDone(){
 		boolean ans = true;
 		for(int i=0; i<isDone.length; i++){
-			ans &= isDone[i];
+			ans = ans && isDone[i];
 		}
 		return ans;
 	}
@@ -72,8 +80,10 @@ public abstract class Helper {
 	 * set true if part with id was downloaded successfully
 	 * @param id of the part
 	 */
-	public static void o_partDone(int id){
+	public static synchronized void o_partDone(int id){
 		isDone[id] = true;
+		o_progress = Math.min(o_progress + o_size, o_config.getInt("len"));
+		o_prog_bar.setProgress(100*o_progress/o_config.getInt("len"));
 	}
 	
 	/**

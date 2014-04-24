@@ -45,4 +45,12 @@
         android:text="@string/o_update"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
+    <SeekBar
+        android:id="@+id/o_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/o_enBT"
+        android:layout_alignParentLeft="true"
+        android:max="100" />
+
 </RelativeLayout>
