@@ -1,49 +1,93 @@
 package in.ac.iiitd.androidsyncapp;
 
-import java.net.URLConnection;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Set;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class ActivityMaster extends Activity{
-	
+
+	/**
+	 * Some random sequence for starting
+	 */
 	private static int o_activityID = 5687;
+
+	/**
+	 * Response codes for various activity
+	 */
 	private static final int o_enableBT = ++o_activityID, o_enableDiscovery = ++o_activityID;
+	private static final String o_master = "master";
+
+	/**
+	 * Contains Default bluetooth adapter if none conatins null
+	 */
 	private static BluetoothAdapter o_myBT;
-	private static final String o_master = "In_Master";
-	private static URLConnection o_conn;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_master);
 		o_myBT = BluetoothAdapter.getDefaultAdapter();
-		
+		Helper.o_update = (TextView) findViewById(R.id.o_dl_update);
 	}
-	
+
 	public void download_file(View view){
-		Log.v(o_master, "Clicked Download in Master");
-		String o_URL = ((EditText) findViewById(R.id.o_URL_box_m)).getText().toString();
-		Log.v(o_master, o_URL);
-		if(o_URL.equals("")){
-			o_showToast("Please Enter URL");
-			return;
-		}
-		else if(!isValid(o_URL)){
-			
-			return;
+		try{
+			Log.v(o_master, "Clicked Download in Master");
+
+			Helper.o_config = new Bundle();
+			Helper.o_config.putString("url", ((EditText) findViewById(R.id.o_URL_box_m)).getText().toString());
+
+			Log.v(o_master, Helper.o_config.getString("url"));
+
+			if(Helper.o_config.getString("url").equals("")){
+				o_showToast("Downloading from default URL");
+				Log.v(o_master, "Background thread started");
+
+				//o_config.putString("url", "https://dl.dropboxusercontent.com/u/108785914/TechReport.pdf");
+				Helper.o_config.putString("url", "https://dl.dropbox.com/u/9097066/image.png");
+				Helper.o_config.putInt("id", 1);
+
+				Helper.o_url = new URL(Helper.o_config.getString("url"));
+				String o_s = Helper.o_config.getString("url");
+				Helper.o_config.putString("ext", o_s.substring(o_s.length()-4, o_s.length()));
+				Log.v(o_master, "Extension : " + Helper.o_config.getString("ext"));
+
+				new StartOfMain().execute();
+
+			}
+		}catch(Exception e){
+			Log.v(o_master, e.toString());
 		}
 	}
-	
+
 	/**
 	 * Checks for URL if something can be downloaded ?
 	 * @param URL to be checked
@@ -52,10 +96,14 @@ public class ActivityMaster extends Activity{
 	private boolean isValid(String URL) {
 		// TODO Auto-generated method stub	
 		Log.v(o_master, "isValid()");
-		
+
 		return true;
 	}
 
+	/**
+	 * To enable the bluetooth if present
+	 * @param view default view
+	 */
 	public void enableBT(View view){
 		Log.v(o_master, "In Enable BT");
 		if(o_noBT()) return;
@@ -68,7 +116,7 @@ public class ActivityMaster extends Activity{
 			if(!o_myBT.isEnabled()) return;	// if BT failed to Turn On
 		}		
 	}
-	
+
 	public void showPairedDevices(View view){
 		if(o_noBT()) return;
 		if(!o_myBT.isEnabled()){
@@ -77,11 +125,11 @@ public class ActivityMaster extends Activity{
 				return;
 			}
 		}
-		
+
 		/*
 		 * get Devices then update the TextView to show all the paired devices
 		 */
-		
+
 		Set<BluetoothDevice> o_pairedBT = o_myBT.getBondedDevices();
 		if(o_pairedBT.size() > 0){
 			TextView tv = (TextView) findViewById(R.id.textView1);
@@ -91,7 +139,7 @@ public class ActivityMaster extends Activity{
 			o_showToast("No Paired Devices");
 		}
 	}
-	
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent){
 		super.onActivityResult(requestCode, resultCode, intent);
@@ -113,7 +161,7 @@ public class ActivityMaster extends Activity{
 			}
 		}
 	}
-	
+
 	/*
 	 * to check if device contains Bluetooth
 	 */
@@ -124,7 +172,7 @@ public class ActivityMaster extends Activity{
 		}
 		return false;
 	}
-	
+
 	private void o_showToast(String o_msg){
 		Toast.makeText(getApplicationContext(), o_msg
 				, Toast.LENGTH_LONG).show();

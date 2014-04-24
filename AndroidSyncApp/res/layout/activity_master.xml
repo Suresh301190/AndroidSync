@@ -16,7 +16,7 @@
     </EditText>
 
     <Button
-        android:id="@+id/o_button1"
+        android:id="@+id/o_enBT"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -26,7 +26,7 @@
         android:text="@string/o_m_enableBT" />
 
     <Button
-        android:id="@+id/o_button2"
+        android:id="@+id/o_Button_dl"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -34,5 +34,15 @@
         android:layout_marginTop="27dp"
         android:onClick="download_file"
         android:text="@string/o_download_m" />
+
+    <TextView
+        android:id="@+id/o_dl_update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/o_Button_dl"
+        android:layout_marginTop="32dp"
+        android:text="@string/o_update"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
 </RelativeLayout>

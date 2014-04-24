@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.SeekBar;
@@ -12,6 +13,7 @@ public class MainActivity extends Activity {
 
 	public static SeekBar bar;
 	private static MediaPlayer mp;
+	private static final String o_main = "main";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +35,7 @@ public class MainActivity extends Activity {
 	}
 	
 	public void switchMaster(View view){
+		Log.v(o_main, "Switched to Master");
 		Intent menuIntent = new Intent(this, ActivityMaster.class);
 		startActivity(menuIntent);
 	}

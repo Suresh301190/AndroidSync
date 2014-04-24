@@ -6,12 +6,13 @@
     <string name="o_hello_world">Hello world!</string>
     <string name="o_play">PLAY</string>
     <string name="o_master">Act as Master</string>
-    <string name ="o_slave">Act as Slave</string>
+    <string name="o_slave">Act as Slave</string>
     <string name="o_pairedBT">Paired Devices</string>
     <string name="o_master_text">Now its working</string>
     <string name="o_m_enableBT">Enable Bluetooth</string>
     <string name="o_URL_m">Enter a Valid URL</string>
     <string name="o_download_m">Click to Download</string>
+    <string name="o_update"> Updates will be shown here</string>
 <!--   <string name="help_m">HELP</string> -->
 
 </resources>
