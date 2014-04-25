@@ -15,8 +15,9 @@ public class DownloadFile extends AsyncTask<Bundle, Integer, Integer>{
 	private final static String o_download = "master Download File";
 
 	/**
-	 * Contains All the configuration for downloading the file from the url, 
-	 * like start offset, ending offset, id, size.
+	 * Configuration which contains deviceID -- (int) task Scheduled on, id -- (int) Part id, start -- start of part block,
+	 * end -- (int) end of part block, isDone -- (String) message if download was successful/ Failed, url -- (String) url from which to download,
+	 * size -- (int) content length, path -- (String) directory where the part was stored in sd-card, name -- (String) name of the file.
 	 */
 	private Bundle o_config;
 
@@ -52,16 +53,16 @@ public class DownloadFile extends AsyncTask<Bundle, Integer, Integer>{
 			conn.setRequestMethod("GET");
 			conn.setRequestProperty("Range", "bytes=" + o_config.getInt("start") + '-' + o_config.getInt("end"));
 			
-			Log.v(o_download, "bytes=" + o_config.getInt("start") + '-' + o_config.getInt("end"));
-			Log.v(o_download, "Response Code : " + conn.getResponseCode());
+			//Log.v(o_download, "bytes=" + o_config.getInt("start") + '-' + o_config.getInt("end"));
+			//Log.v(o_download, "Response Code : " + conn.getResponseCode());
 
 			if(conn.getResponseCode() == HttpURLConnection.HTTP_PARTIAL){
 				Log.v(o_download, "Partial Download possible... Downloading");
 
-				o_os = new FileOutputStream(new File(Helper.o_path + "/image" + o_config.getInt("id")));// +o_config.getString("ext")));
-
 				//To store path in bundle
-				o_config.putString("path", Helper.o_path.getAbsolutePath() + "/image" + o_config.getInt("id"));// +o_config.getString("ext"));
+				o_config.putString("path", Helper.o_path.getAbsolutePath() + "/tmp" + o_config.getInt("id"));// +o_config.getString("ext"));
+
+				o_os = new FileOutputStream(new File(o_config.getString("path")));
 
 				o_buff = new byte[Helper.o_buffLength];
 				try {
@@ -74,7 +75,7 @@ public class DownloadFile extends AsyncTask<Bundle, Integer, Integer>{
 					Log.v(o_download, "Downloaded Part" + o_config.getInt("id"));
 					o_config.putString("isDone", "Downloaded Part" + o_config.getInt("id"));
 					Helper.o_partDone(o_config.getInt("id"));
-
+					
 				}catch(Exception e){
 					Log.v(o_download, e.toString());
 				} finally {
@@ -85,7 +86,7 @@ public class DownloadFile extends AsyncTask<Bundle, Integer, Integer>{
 						o_os.flush();
 						o_os.close();
 					}
-					Log.v(o_download, "streams closed");
+					//Log.v(o_download, "streams closed");
 				}
 			}
 			else{
@@ -102,8 +103,11 @@ public class DownloadFile extends AsyncTask<Bundle, Integer, Integer>{
 	}
 
 	@Override
-	protected void onPostExecute(Integer i){
-		Helper.o_updateText(o_config.getString("isDone"));
+	protected void onPostExecute(Integer i) {
+		if(Helper.isDone[o_config.getInt("id")]){
+			Helper.o_updateText(o_config.getString("isDone"));
+			Helper.o_isDownloading[o_config.getInt("deviceID")] = false;
+		}
 	}
 
 }

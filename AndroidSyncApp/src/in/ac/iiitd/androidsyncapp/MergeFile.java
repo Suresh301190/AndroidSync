@@ -26,13 +26,17 @@ public class MergeFile extends AsyncTask<Bundle, Void, Void>{
 		Log.v(o_merge, "MergeFile --- doInBackground");
 		
 		try {
-			OutputStream o_os = new FileOutputStream(new File(Helper.o_path + "/Final_file" + bundles[0].getString("ext")));
+			// open the main file for writing
+			OutputStream o_os = new FileOutputStream(new File(Helper.o_path + bundles[0].getString("name")));
 			InputStream o_is;
 			byte[] o_buff = new byte[Helper.o_buffLength];
 			
-			for(Bundle o_config:Helper.o_sort_config){
+			// for each part read and write to file in sequential order
+			for(Bundle o_config:Helper.o_pool_config){
 				o_is = new FileInputStream(o_config.getString("path"));
 				int len;
+				
+				// THis actually writes
 				while((len = o_is.read(o_buff, 0, Helper.o_buffLength)) != -1){
 					o_os.write(o_buff, 0, len);
 				}
@@ -54,5 +58,6 @@ public class MergeFile extends AsyncTask<Bundle, Void, Void>{
 	@Override
 	protected void onPostExecute(Void i){
 		Helper.o_updateText(Helper.o_config.getString("isDone"));
+		Log.v(o_merge, Helper.o_config.getString("isDone"));
 	}
 }

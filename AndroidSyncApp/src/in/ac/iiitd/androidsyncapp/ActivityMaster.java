@@ -1,30 +1,12 @@
 package in.ac.iiitd.androidsyncapp;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Set;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -68,7 +50,7 @@ public class ActivityMaster extends Activity{
 
 			Log.v(o_master, Helper.o_config.getString("url"));
 
-			if(Helper.o_config.getString("url").equals("")){
+			if(Helper.o_config.getString("url").length() == 0){
 				o_showToast("Downloading from default URL");
 				Log.v(o_master, "Background thread started");
 
@@ -89,7 +71,7 @@ public class ActivityMaster extends Activity{
 	 * @param URL to be checked
 	 * @return true if URL is valid
 	 */
-	private boolean isValid(String URL) {
+	boolean isValid(String URL) {
 		// TODO Auto-generated method stub	
 		Log.v(o_master, "isValid()");
 
