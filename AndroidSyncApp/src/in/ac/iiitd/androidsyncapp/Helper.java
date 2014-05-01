@@ -3,12 +3,15 @@ package in.ac.iiitd.androidsyncapp;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.os.Environment;
-import android.widget.SeekBar;
-import android.widget.TextView;
+import android.util.SparseArray;
 
 /**
  * Helper Functions if any
@@ -17,19 +20,39 @@ import android.widget.TextView;
  *
  */
 public abstract class Helper extends Activity{
+	
+	public static ExecutorService seqExec = Executors.newSingleThreadExecutor();
 
 	public static final int o_maxParts = 2;
+
 	/**
-	 * Configuration which is master to all contains deviceID -- (int) task Scheduled on, id -- (int) Part id, start -- start of part block,
-	 * end -- (int) end of part block, isDone -- (String) message if download was successful/ Failed, url -- (String) url from which to download,
-	 * size -- (int) content length, path -- (String) directory where the part was stored in sd-card, name -- (String) name of the file.
+	 * Configuration which contains 
+	 * deviceID -- (int) task Scheduled on, 
+	 * id -- (int) Part id, 
+	 * start -- start of part block,
+	 * end -- (int) end of part block, 
+	 * isDone -- (String) message if download was successful/ Failed, 
+	 * url -- (String) url from which to download, 
+	 * size -- (int) content length, 
+	 * path -- (String) directory where the part was stored in sd-card, 
+	 * name -- (String) name of the file
+	 * crash -- (int) crash count for the respective part
+	 * isDone -- (String) Message regarding the part file success/failure.
 	 */
 	public static Bundle o_config;
 
 	/**
 	 * List of Bundles associated with the individual parts
+	 * and the main pool from which parts to be downloaded is queried.
 	 */
 	public static ArrayList<Bundle> o_pool_config;
+	
+	/**To store list of slaves-id pairs*/
+	public static SparseArray<BluetoothDevice> o_slave_pool;
+	
+	/**UUID for device connections*/
+	public static final UUID MASTER_UUID = UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
+	public static final UUID SLAVE_UUID = UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a77");
 
 	/**
 	 * Current Config to offer from the pool
@@ -37,14 +60,9 @@ public abstract class Helper extends Activity{
 	public static int o_offer = 0;
 
 	/**
-	 * Text view to update to Application View of the progress
+	 * Maximum Buffer Length default 16KB
 	 */
-	public static TextView o_update;
-
-	/**
-	 * Maximum Buffer Length
-	 */
-	public static final int o_buffLength = 0x1000;
+	public static final int o_buffLength = 0x4000;
 
 	/**
 	 * Minimum part size default 512KB
@@ -55,6 +73,11 @@ public abstract class Helper extends Activity{
 	 * To store the working Directory /AndroidSync
 	 */
 	public static final File o_path = new File(Environment.getExternalStorageDirectory(), "/AndroidSync");
+	
+	/**
+	 * If process crashes retry how many time.
+	 */
+	public static final int o_crash_threshold = 5;
 
 	/**
 	 * To store the URL temporarily 
@@ -89,12 +112,12 @@ public abstract class Helper extends Activity{
 	/**
 	 * Default sleep Timer for Major Thread
 	 */
-	public static long o_sleep = 1000;
+	public static final long o_sleep = 1000;
+	
 	/**
 	 * To set download Progress
 	 */
 	public static int o_progress = 0;
-	public static SeekBar o_prog_bar;
 
 	/**
 	 * To check if all process is done
@@ -114,16 +137,25 @@ public abstract class Helper extends Activity{
 	 */
 	public static synchronized void o_partDone(int id){
 		isDone[id] = true;
-		o_progress = Math.min(o_progress + o_size, o_config.getInt("len"));
-		o_prog_bar.setProgress(100*o_progress/o_config.getInt("len"));
+		o_isRunning[id] = false;
+		o_progress = Math.min(o_progress + o_size, o_config.getInt("len"));		
 	}
 
-	/**
-	 * To update the progress on the text view on application
-	 * @param s text to append.
-	 */
-	public static synchronized void o_updateText(String s){
-		o_update.setText(o_update.getText() + "\n" + s);
+	public static void reset() {
+		// TODO Auto-generated method stub
+		o_size = 0x80000;
+		o_pool_config = null;
+		o_config = null;
+		o_slave_pool = null;
+		o_isDownloading = null;
+		o_isRunning = null;
+		o_progress = 0;
+		o_size = 0x80000;
+		o_offer = 0;
+		o_url = null;
+		isDone = null;
+		o_no_devices = 1;
+		o_no_parts = 0;		
 	}
 	
 	

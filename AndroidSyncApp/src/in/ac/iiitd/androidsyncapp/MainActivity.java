@@ -41,6 +41,7 @@ public class MainActivity extends Activity {
 	}
 	
 	public void switchSlave(View view){
+		Log.v(o_main, "Switched to Slave");
 		Intent menuIntent = new Intent(this, ActivitySlave.class);
 		startActivity(menuIntent);
 	}

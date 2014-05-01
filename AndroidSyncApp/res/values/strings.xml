@@ -13,6 +13,9 @@
     <string name="o_URL_m">Enter a Valid URL</string>
     <string name="o_download_m">Click to Download</string>
     <string name="o_update"> Updates will be shown here</string>
+    <string name="o_slave_url">URL will be shown here after the connecting with Master</string>
+    <string name="o_slave_updates">Updates will be shown here</string>
+    <string name="o_sMsg">Send Message</string>
 <!--   <string name="help_m">HELP</string> -->
 
 </resources>

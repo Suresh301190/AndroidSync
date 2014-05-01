@@ -1,28 +1,81 @@
 package in.ac.iiitd.androidsyncapp;
 
-import android.os.AsyncTask;
+import java.util.concurrent.ExecutorService;
+
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 
-public class DownloadManager extends AsyncTask<Void, Void, Void>{
+public class DownloadManager extends Thread{
 
-	private static final String o_master = "master DownloadManager";
-	
+	private static final String TAG = "AndroidSync DownloadManager";
+
 	/**
-	 * Configuration which contains deviceID -- (int) task Scheduled on, id -- (int) Part id, start -- start of part block,
-	 * end -- (int) end of part block, isDone -- (String) message if download was successful/ Failed, url -- (String) url from which to download,
-	 * size -- (int) content length, path -- directory where the part was stored in sd-card.
+	 * Configuration which contains 
+	 * deviceID -- (int) task Scheduled on, 
+	 * id -- (int) Part id, 
+	 * start -- start of part block,
+	 * end -- (int) end of part block, 
+	 * isDone -- (String) message if download was successful/ Failed, 
+	 * url -- (String) url from which to download, 
+	 * size -- (int) content length, 
+	 * path -- (String) directory where the part was stored in sd-card, 
+	 * name -- (String) name of the file
+	 * crash -- (int) crash count for the respective part
+	 * isDone -- (String) Message regarding the part file success/failure.
 	 */
 	private Bundle o_config;
+
+	// Message Types
+	private static final int MESSAGE_BROADCAST = 0xe000;
+	private static final int MESSAGE_UNICAST = 0xe000;
+
+	/*
+	private static final Handler oh_DownLoadManager = new Handler(){
+
+		@Override
+		public void handleMessage(Message msg){
+
+		}
+	};
+	//*/
+
+	private final ExecutorService seq_DownloadManager;
 	
+	private final BluetoothComm bcomm;
+
+	private final Handler oh_Manager;
+
+	public DownloadManager(Handler h,BluetoothComm comm, ExecutorService es){
+		oh_Manager = h;
+		bcomm = comm;	
+		seq_DownloadManager = es;
+	}
+
 	@Override
-	protected Void doInBackground(Void... params) {
+	public void run() {
 		// TODO Auto-generated method stub
-		Log.v(o_master, "Inside Download Manager");
-		
+		//Log.v(TAG, "Inside Download Manager");
+		Log.v(TAG, "No. of Devices found " + Helper.o_no_devices);
 		try{
-			int deviceID = 0;
 			
+			Runnable broadCastBundle = new Runnable() {
+
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					Log.v(TAG, "Broad Casting Bundles");
+					// Send the bundle to every slave...
+					for(int i=1; i<Helper.o_no_devices; i++){
+						bcomm.sendBundle(Helper.o_config, i);
+					}
+				}
+			};
+			
+			seq_DownloadManager.execute(broadCastBundle);
+
+			int deviceID = 0;
+
 			// Major Loop/Service
 			while(true){
 
@@ -31,42 +84,44 @@ public class DownloadManager extends AsyncTask<Void, Void, Void>{
 
 				// If we have a Part and finding some idle device to schedule to...
 				while(o_config != null){
-					
+
 					deviceID = findIdle();
 
 					// To run on master itself
 					if(deviceID == 0){
-						Log.v(o_master, "Scheduled on master id=0");
+						Log.v(TAG, "Scheduled on master id=0");
 						o_config.putInt("deviceID", deviceID);
-						
+						o_config.putInt("crash", o_config.getInt("crash" + 1));
+
 						// Set the downloading and running flags.
 						Helper.o_isDownloading[deviceID] = true;
 						Helper.o_isRunning[o_config.getInt("id")] = true;
-						
-						new DownloadFile().executeOnExecutor(THREAD_POOL_EXECUTOR, o_config);
+
+						new DownloadFile(o_config, oh_Manager).start();
 					}
 					// To run on slave with the respective deviceID
+					/*
 					else if(deviceID != Helper.o_no_devices){
 						o_config.putInt("deviceID", deviceID);
-						
-						Log.v(o_master, "Scheduled on slave id=" + deviceID);
-						
-						// Set the downloading and running flags.
-						Helper.o_isDownloading[deviceID] = true;
-						Helper.o_isRunning[o_config.getInt("id")] = true;
-						
-						new BluetoothComm().executeOnExecutor(THREAD_POOL_EXECUTOR, o_config);
-					}
+
+						Log.v(TAG, "Scheduled on slave id=" + deviceID);
+
+						// Set the downloading and running flags. 
+						//Helper.o_isDownloading[deviceID] = true;
+						//Helper.o_isRunning[o_config.getInt("id")] = true;
+
+						//new BluetoothComm(o_config).start();
+					} //*/
 					else{
 						// sleep...
 						Thread.sleep(Helper.o_sleep);
 						//Log.v(o_master, "Sleeping in minor thread for " + Helper.o_sleep/1000 + 's');
 					}
-					
+
 					// get a free config 
 					o_config = o_getFromPool();
 				}
-				
+
 				// if all parts done
 				if(Helper.o_allDone()){
 					break;
@@ -77,24 +132,24 @@ public class DownloadManager extends AsyncTask<Void, Void, Void>{
 				}				
 			}
 		}catch(Exception e){
-
+			Log.v(TAG, e.toString());
 		}
-		return null;
+
+		onPostExecute();
 	}
 
-	@Override
-	protected void onPostExecute(Void i) {
+	protected void onPostExecute() {
 		// to receive all the parts from slaves in sequential order
 		getPartsFromSlave();
-		Log.v(o_master, "Merging Started");
-		new MergeFile().execute(Helper.o_config);
+		Log.v(TAG, "Merging Started");
+		new MergeFile(oh_Manager).start();
 	}
 
-	
+
 	private void getPartsFromSlave() {
 		// TODO Auto-generated method stub
-		
-		
+
+
 	}
 
 	/**
@@ -103,21 +158,14 @@ public class DownloadManager extends AsyncTask<Void, Void, Void>{
 	 * @return Configuration for the part if part is found else "null"
 	 */
 	private static Bundle o_getFromPool(){
-		Bundle b = null;
-		
-		int i = Helper.o_offer++;
-		Helper.o_offer %= Helper.o_no_parts;
-		
-		for(i %= Helper.o_no_parts; i != Helper.o_offer; i = ++i % Helper.o_no_parts){
+
+		for(int i = 0; i <Helper.o_no_parts; ++i){
 			//Log.v(o_master, "Part" + i + " Sent");
-			if(!Helper.isDone[i] && !Helper.o_isRunning[i]){
-				b = Helper.o_pool_config.get(i);
-				Helper.o_offer = ++i % Helper.o_no_parts;
-				//Log.v(o_master, "Break out Part" + i + " Sent");
-				break;
+			if(!Helper.isDone[i] && !Helper.o_isRunning[i]) {
+				return Helper.o_pool_config.get(i);
 			}
 		}	
-		return b;
+		return null;
 	}
 
 	/**
@@ -132,6 +180,5 @@ public class DownloadManager extends AsyncTask<Void, Void, Void>{
 			}
 		}
 		return Helper.o_no_devices;
-	}
-	
+	}	
 }

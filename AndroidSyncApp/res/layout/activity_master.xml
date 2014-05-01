@@ -40,17 +40,27 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/o_Button_dl"
-        android:layout_marginTop="32dp"
+        android:layout_centerVertical="true"
         android:text="@string/o_update"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
-    <SeekBar
-        android:id="@+id/o_progress"
-        android:layout_width="match_parent"
+    <ProgressBar
+        android:id="@+id/o_progMaster"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/o_enBT"
         android:layout_alignParentLeft="true"
-        android:max="100" />
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/o_Button_dl" />
+
+    <Button
+        android:id="@+id/o_Send"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/o_dl_update"
+        android:layout_alignParentLeft="true"
+        android:text="@string/o_sMsg" 
+        android:onClick="sendMsg"/>
 
 </RelativeLayout>

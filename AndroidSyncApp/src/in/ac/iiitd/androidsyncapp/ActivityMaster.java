@@ -1,16 +1,20 @@
 package in.ac.iiitd.androidsyncapp;
 
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.SeekBar;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,24 +29,38 @@ public class ActivityMaster extends Activity{
 	 * Response codes for various activity
 	 */
 	private static final int o_enableBT = ++o_activityID, o_enableDiscovery = ++o_activityID;
-	private static final String o_master = "master";
+	private static final String o_master = "AndroidSync ActivityMaster";
+
+	public static ProgressBar o_progBar;
+
+	private static TextView o_update;
+
+	private BluetoothComm bcomm;
+
+	// Message Types
+	private static final int MESSAGE_BROADCAST = 0xe000;
+	private static final int MESSAGE_UNICAST = 0xe000;
+	private static final int HANDSHAKE = 0xe001;
 
 	/**
 	 * Contains Default bluetooth adapter if none conatins null
 	 */
-	private static BluetoothAdapter o_myBT;
+	public static BluetoothAdapter o_myBT; 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.v(o_master, "Switched to Master");
 		setContentView(R.layout.activity_master);
 		o_myBT = BluetoothAdapter.getDefaultAdapter();
-		Helper.o_update = (TextView) findViewById(R.id.o_dl_update);
-		Helper.o_prog_bar = (SeekBar) findViewById(R.id.o_progress);
+		o_progBar = (ProgressBar) findViewById(R.id.o_progMaster);
+		o_update = (TextView) findViewById(R.id.o_dl_update);		
 	}
 
 	public void download_file(View view){
 		try{
+			Helper.reset();
+			//Helper.reset();
 			Log.v(o_master, "Clicked Download in Master");
 
 			Helper.o_config = new Bundle();
@@ -52,18 +70,45 @@ public class ActivityMaster extends Activity{
 
 			if(Helper.o_config.getString("url").length() == 0){
 				o_showToast("Downloading from default URL");
-				Log.v(o_master, "Background thread started");
+				//Log.v(o_master, "Background thread started");
 
 				//o_config.putString("url", "https://dl.dropboxusercontent.com/u/108785914/TechReport.pdf");
 				Helper.o_config.putString("url", "https://dl.dropbox.com/u/9097066/image.png");
 				Helper.o_config.putInt("id", 1);
 
-				new StartOfMain().execute();
+				new StartOfMain(oh_Master, Helper.seqExec).start();
+				//bcomm = new BluetoothComm(new Bundle(), oh_Master);
+				//bcomm.connect(o_myBT.getRemoteDevice("41:2F:C6:0A:F5:52"));		// Mom's
+				//bcomm.connect(o_myBT.getRemoteDevice("18:26:66:6B:33:1D"));		// Ritika
+				Runnable r = new Runnable() {
 
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						Set<BluetoothDevice> o_bonded = ActivityMaster.o_myBT.getBondedDevices();
+						for(BluetoothDevice o_bon: o_bonded){
+							bcomm.connect(o_bon,HANDSHAKE);
+						}
+					}
+				};
+
+				//new Thread(r).start();				
 			}
 		}catch(Exception e){
 			Log.v(o_master, e.toString());
 		}
+	}
+
+	public void sendMsg(View view){
+		//for(int i=1; i<= Helper.o_no_devices; i++){
+		bcomm.sendMessage("It Works Yipee");
+		//bcomm2.sendMessage("It Works Yipee");
+		//}
+
+		Bundle b = new Bundle();
+		b.putString("device", o_master);
+		b.putInt("id", 3);
+		bcomm.sendBundle(b, 1);
 	}
 
 	/**
@@ -77,6 +122,19 @@ public class ActivityMaster extends Activity{
 
 		return true;
 	}
+
+	public static Handler oh_Master = new Handler(){
+
+		@Override
+		public void handleMessage(Message msg){
+			//o_progBar.setProgress(msg.arg1);
+
+			if(msg.obj != null){
+				o_update.append("\n" + (String) msg.obj);
+			}
+
+		}
+	};
 
 	/**
 	 * To enable the bluetooth if present

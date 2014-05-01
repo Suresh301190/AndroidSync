@@ -36,7 +36,8 @@
         android:layout_alignLeft="@+id/radioButton1"
         android:layout_alignRight="@+id/radioButton1"
         android:layout_below="@+id/radioButton1"
-        android:text="@string/o_slave" />
+        android:text="@string/o_slave" 
+        android:onClick="switchSlave"/>
 
     <SeekBar
         android:id="@+id/seekBar1"

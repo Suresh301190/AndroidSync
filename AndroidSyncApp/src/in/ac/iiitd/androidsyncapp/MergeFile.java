@@ -6,8 +6,9 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 /**
@@ -16,18 +17,24 @@ import android.util.Log;
  * @author Suresh
  *
  */
-public class MergeFile extends AsyncTask<Bundle, Void, Void>{
+public class MergeFile extends Thread{
 
-	private static final String o_merge = "master Merge File";
+	private static final String TAG = "AndroidSync MergeFile";
+	
+	private final Handler oh_MergeFile;
+	
+	public MergeFile(Handler h){
+		oh_MergeFile = h;
+	}
 
 	@Override
-	protected Void doInBackground(Bundle... bundles) {
+	public void run() {
 		// TODO Auto-generated method stub
-		Log.v(o_merge, "MergeFile --- doInBackground");
+		//Log.v(TAG, "MergeFile --- doInBackground");
 		
 		try {
 			// open the main file for writing
-			OutputStream o_os = new FileOutputStream(new File(Helper.o_path + bundles[0].getString("name")));
+			OutputStream o_os = new FileOutputStream(new File(Helper.o_path + Helper.o_config.getString("name")));
 			InputStream o_is;
 			byte[] o_buff = new byte[Helper.o_buffLength];
 			
@@ -49,15 +56,21 @@ public class MergeFile extends AsyncTask<Bundle, Void, Void>{
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			Log.v(o_merge, e.toString());
+			Log.v(TAG, e.toString());
 			Helper.o_config.putString("isDone", "Curruption... Sorry Retry Again");
 		}		
-		return null;
+		onPostExecute();
 	}
 	
-	@Override
-	protected void onPostExecute(Void i){
-		Helper.o_updateText(Helper.o_config.getString("isDone"));
-		Log.v(o_merge, Helper.o_config.getString("isDone"));
+	protected void onPostExecute(){
+		
+		Message msg = oh_MergeFile.obtainMessage();
+		msg.arg1 = 100;
+		msg.obj = Helper.o_config.getString("isDone");
+		oh_MergeFile.sendMessage(msg);
+		Log.v(TAG, Helper.o_config.getString("isDone"));
+		Helper.reset();
 	}
+
+
 }

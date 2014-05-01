@@ -5,6 +5,24 @@
     
 <!--  Add your Buttons from here on with prefix r_ for ritika, s_ sonam Happy Coding-->
 
+    <TextView
+        android:id="@+id/o_url_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="20dp"
+        android:text="@string/o_slave_url" />
 
+    <TextView
+        android:id="@+id/o_slave_updates"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/o_url_view"
+        android:layout_below="@+id/o_url_view"
+        android:layout_marginTop="41dp"
+        android:text="@string/o_slave_updates"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
 </RelativeLayout>
