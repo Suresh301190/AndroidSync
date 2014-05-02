@@ -1,9 +1,11 @@
 package in.ac.iiitd.androidsyncapp;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 public class DownloadManager extends Thread{
@@ -25,31 +27,37 @@ public class DownloadManager extends Thread{
 	 * isDone -- (String) Message regarding the part file success/failure.
 	 */
 	private Bundle o_config;
-
-	// Message Types
-	private static final int MESSAGE_BROADCAST = 0xe000;
-	private static final int MESSAGE_UNICAST = 0xe000;
+	
+	private final static ExecutorService execDownloadQueue = Executors.newCachedThreadPool();
 
 	/*
 	private static final Handler oh_DownLoadManager = new Handler(){
 
 		@Override
 		public void handleMessage(Message msg){
-
+			switch(msg.what){
+			case Helper.TYPE_FORWARD_PART:
+				Helper.o_partDone(((Bundle) msg.obj).getInt("id"));
+				break;
+				
+			case Helper.TYPE_UPDATE_PROGRESS:
+				ActivityMaster.oh_Master.obtainMessage(Helper.TYPE_UPDATE_PROGRESS, msg.arg1, -1, msg.obj).sendToTarget();
+				break;
+			}
 		}
 	};
 	//*/
 
 	private final ExecutorService seq_DownloadManager;
-	
-	private final BluetoothComm bcomm;
+
+	public final BluetoothComm bcomm;
 
 	private final Handler oh_Manager;
-
-	public DownloadManager(Handler h,BluetoothComm comm, ExecutorService es){
+	
+	public DownloadManager(Handler h, BluetoothComm comm){
 		oh_Manager = h;
 		bcomm = comm;	
-		seq_DownloadManager = es;
+		seq_DownloadManager = Executors.newSingleThreadExecutor();
 	}
 
 	@Override
@@ -58,7 +66,7 @@ public class DownloadManager extends Thread{
 		//Log.v(TAG, "Inside Download Manager");
 		Log.v(TAG, "No. of Devices found " + Helper.o_no_devices);
 		try{
-			
+
 			Runnable broadCastBundle = new Runnable() {
 
 				@Override
@@ -67,11 +75,11 @@ public class DownloadManager extends Thread{
 					Log.v(TAG, "Broad Casting Bundles");
 					// Send the bundle to every slave...
 					for(int i=1; i<Helper.o_no_devices; i++){
-						bcomm.sendBundle(Helper.o_config, i);
+						bcomm.sendBundle(Helper.o_config, i, Helper.TYPE_BUNDLE);
 					}
 				}
 			};
-			
+
 			seq_DownloadManager.execute(broadCastBundle);
 
 			int deviceID = 0;
@@ -100,17 +108,17 @@ public class DownloadManager extends Thread{
 						new DownloadFile(o_config, oh_Manager).start();
 					}
 					// To run on slave with the respective deviceID
-					/*
+					//*
 					else if(deviceID != Helper.o_no_devices){
 						o_config.putInt("deviceID", deviceID);
 
 						Log.v(TAG, "Scheduled on slave id=" + deviceID);
 
 						// Set the downloading and running flags. 
-						//Helper.o_isDownloading[deviceID] = true;
-						//Helper.o_isRunning[o_config.getInt("id")] = true;
+						Helper.o_isDownloading[deviceID] = true;
+						Helper.o_isRunning[o_config.getInt("id")] = true;
 
-						//new BluetoothComm(o_config).start();
+						bcomm.sendBundle(o_config, deviceID, Helper.TYPE_DOWNLOAD_PART_REQUEST);
 					} //*/
 					else{
 						// sleep...

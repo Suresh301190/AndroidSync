@@ -37,11 +37,6 @@ public class ActivityMaster extends Activity{
 
 	private BluetoothComm bcomm;
 
-	// Message Types
-	private static final int MESSAGE_BROADCAST = 0xe000;
-	private static final int MESSAGE_UNICAST = 0xe000;
-	private static final int HANDSHAKE = 0xe001;
-
 	/**
 	 * Contains Default bluetooth adapter if none conatins null
 	 */
@@ -77,9 +72,9 @@ public class ActivityMaster extends Activity{
 				Helper.o_config.putInt("id", 1);
 
 				new StartOfMain(oh_Master, Helper.seqExec).start();
-				//bcomm = new BluetoothComm(new Bundle(), oh_Master);
+				//bcomm = new BluetoothComm(oh_Master, null);
 				//bcomm.connect(o_myBT.getRemoteDevice("41:2F:C6:0A:F5:52"));		// Mom's
-				//bcomm.connect(o_myBT.getRemoteDevice("18:26:66:6B:33:1D"));		// Ritika
+				//bcomm.connect(o_myBT.getRemoteDevice("18:26:66:6B:33:1D"), HANDSHAKE);		// Ritika
 				Runnable r = new Runnable() {
 
 					@Override
@@ -87,7 +82,7 @@ public class ActivityMaster extends Activity{
 						// TODO Auto-generated method stub
 						Set<BluetoothDevice> o_bonded = ActivityMaster.o_myBT.getBondedDevices();
 						for(BluetoothDevice o_bon: o_bonded){
-							bcomm.connect(o_bon,HANDSHAKE);
+							bcomm.connect(o_bon, Helper.HANDSHAKE);
 						}
 					}
 				};
@@ -105,10 +100,12 @@ public class ActivityMaster extends Activity{
 		//bcomm2.sendMessage("It Works Yipee");
 		//}
 
+		/*
 		Bundle b = new Bundle();
 		b.putString("device", o_master);
 		b.putInt("id", 3);
-		bcomm.sendBundle(b, 1);
+		bcomm.sendBundle(b, 1, HANDSHAKE);
+		//*/
 	}
 
 	/**
@@ -123,18 +120,35 @@ public class ActivityMaster extends Activity{
 		return true;
 	}
 
-	public static Handler oh_Master = new Handler(){
+	public static final Handler oh_Master = new Handler(){
 
 		@Override
 		public void handleMessage(Message msg){
 			//o_progBar.setProgress(msg.arg1);
 
-			if(msg.obj != null){
-				o_update.append("\n" + (String) msg.obj);
+			switch(msg.what){
+			case Helper.TYPE_UPDATE_PROGRESS:
+				o_progBar.setProgress(msg.arg1);
+				o_update.append("\n" + msg.obj);
+				break;
+
+			case Helper.TYPE_FORWARD_PART:
+				Helper.o_partDone(((Bundle) msg.obj).getInt("id"));
+				break;
+				
+			case Helper.TYPE_ONLY_PART_SLAVE:
+				o_update.append("\n" + "part" + msg.arg1 + "done");
+				Helper.o_partDone(msg.arg1);
+				Helper.o_isDownloading[msg.arg2] = false;
+				break;
 			}
 
 		}
 	};
+	
+	public void reset(View view){
+		
+	}
 
 	/**
 	 * To enable the bluetooth if present

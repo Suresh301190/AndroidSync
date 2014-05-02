@@ -64,10 +64,7 @@ public class MergeFile extends Thread{
 	
 	protected void onPostExecute(){
 		
-		Message msg = oh_MergeFile.obtainMessage();
-		msg.arg1 = 100;
-		msg.obj = Helper.o_config.getString("isDone");
-		oh_MergeFile.sendMessage(msg);
+		oh_MergeFile.obtainMessage(Helper.TYPE_UPDATE_PROGRESS, 100, -1, Helper.o_config.getString("isDone")).sendToTarget();
 		Log.v(TAG, Helper.o_config.getString("isDone"));
 		Helper.reset();
 	}

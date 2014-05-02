@@ -3,10 +3,8 @@ package in.ac.iiitd.androidsyncapp;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
@@ -28,12 +26,7 @@ public class StartOfMain extends Thread{
 
 	private BluetoothComm bcomm;
 
-	private final Handler oh_Start;
-
-	// Message Types
-	private static final int MESSAGE_BROADCAST = 0xe000;
-	private static final int MESSAGE_UNICAST = 0xe000;
-	private static final int HANDSHAKE = 0xe001;
+	public final Handler oh_Start;
 
 	public StartOfMain(Handler h, ExecutorService es){
 		oh_Start = h;
@@ -74,9 +67,6 @@ public class StartOfMain extends Thread{
 				Helper.o_config.putInt("len", len);
 				Helper.o_pool_config = new ArrayList<Bundle>();
 
-				//Make directory /AndroidSync
-				Helper.o_path.mkdir();
-
 				// Initialize No. of Parts
 				Helper.o_no_parts = Math.min((int) Math.ceil(1.0*len/Helper.o_size), Helper.o_maxParts);
 
@@ -92,25 +82,24 @@ public class StartOfMain extends Thread{
 
 				Log.v(TAG, "No. of Parts : " + Helper.o_no_parts + " Content len : " + len);
 
-				//Crash count
-				Helper.o_config.putInt("crash", 0);
-
-				Helper.o_isDownloading = new boolean[7];
-
 				for(int i=0, offset = 0; i<Helper.isDone.length; i++, offset++) {
-					Bundle b = new Bundle(Helper.o_config);
+					Bundle b = new Bundle();
+					//Crash count
+					b.putInt("crash", 0);
 					b.putInt("id", i);
 					b.putInt("start", offset);
 					b.putInt("end", Math.min(offset+=Helper.o_size, len));
 					Helper.o_pool_config.add(b);		
 				}
-				
-				if(bcomm.isFinished()){
-					new DownloadManager(oh_Start, bcomm, Executors.newSingleThreadExecutor()).start();
-				}
-				
 
-				//Log.v(TAG, "Download Manager Started");
+				if(bcomm.isFinished()){
+					Log.v(TAG, "Download Manager Started");
+					new DownloadManager(oh_Start, bcomm).start();
+				}
+				else{
+					Log.v(TAG, "Error");
+					oh_Start.obtainMessage(Helper.TYPE_STRING, -1, -1, "Error Occured Please try again :)");
+				}	
 			}
 			//*/
 		} catch (Exception e) {
@@ -127,10 +116,10 @@ public class StartOfMain extends Thread{
 		Helper.o_slave_pool = new SparseArray<BluetoothDevice>();
 		try{
 			Log.v(TAG, "getting paired devices");
-			bcomm = new BluetoothComm(null, oh_Start, seq_StartOfMain);
+			bcomm = new BluetoothComm(oh_Start, seq_StartOfMain);
 			Set<BluetoothDevice> o_bonded = ActivityMaster.o_myBT.getBondedDevices();
 			for(BluetoothDevice o_bon: o_bonded){
-				bcomm.connect(o_bon, HANDSHAKE);
+				bcomm.connect(o_bon, Helper.HANDSHAKE);
 			}
 
 			/*

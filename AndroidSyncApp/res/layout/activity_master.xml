@@ -16,16 +16,6 @@
     </EditText>
 
     <Button
-        android:id="@+id/o_enBT"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginBottom="18dp"
-        android:onClick="o_enableBT"
-        android:text="@string/o_m_enableBT" />
-
-    <Button
         android:id="@+id/o_Button_dl"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -49,6 +39,7 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/o_Send"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/o_Button_dl" />
@@ -62,5 +53,15 @@
         android:layout_alignParentLeft="true"
         android:text="@string/o_sMsg" 
         android:onClick="sendMsg"/>
+
+    <Button
+        android:id="@+id/om_reset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="19dp"
+        android:text="@string/os_click_reset" 
+        android:onClick="reset"/>
 
 </RelativeLayout>

@@ -3,6 +3,8 @@ package in.ac.iiitd.androidsyncapp;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,14 +26,18 @@ public abstract class Helper extends Activity{
 	public static ExecutorService seqExec = Executors.newSingleThreadExecutor();
 
 	public static final int o_maxParts = 2;
+	
+	/**To Store the data type of config */
+	public static final HashSet<String> _conString = 
+			new HashSet<String>(Arrays.asList("url", "isDone", "path", "name"));
 
 	/**
 	 * Configuration which contains 
 	 * deviceID -- (int) task Scheduled on, 
 	 * id -- (int) Part id, 
-	 * start -- start of part block,
+	 * start -- (int) start of part block,
 	 * end -- (int) end of part block, 
-	 * isDone -- (String) message if download was successful/ Failed, 
+	 * isDone -- (String) message if download was successful/ Failed, (Only Master Config)
 	 * url -- (String) url from which to download, 
 	 * size -- (int) content length, 
 	 * path -- (String) directory where the part was stored in sd-card, 
@@ -54,14 +60,10 @@ public abstract class Helper extends Activity{
 	public static final UUID MASTER_UUID = UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
 	public static final UUID SLAVE_UUID = UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a77");
 
-	/**
-	 * Current Config to offer from the pool
-	 */
+	/** Current Config to offer from the pool*/
 	public static int o_offer = 0;
 
-	/**
-	 * Maximum Buffer Length default 16KB
-	 */
+	/**Maximum Buffer Length default 16KB */
 	public static final int o_buffLength = 0x4000;
 
 	/**
@@ -72,7 +74,7 @@ public abstract class Helper extends Activity{
 	/**
 	 * To store the working Directory /AndroidSync
 	 */
-	public static final File o_path = new File(Environment.getExternalStorageDirectory(), "/AndroidSync");
+	public static final File o_path = new File(Environment.getExternalStorageDirectory(), "/AndroidSync").getAbsoluteFile();
 	
 	/**
 	 * If process crashes retry how many time.
@@ -112,20 +114,43 @@ public abstract class Helper extends Activity{
 	/**
 	 * Default sleep Timer for Major Thread
 	 */
-	public static final long o_sleep = 1000;
+	public static final long o_sleep = 5000;
 	
 	/**
 	 * To set download Progress
 	 */
 	public static int o_progress = 0;
+	
+	// Message Types
+	public static final int MESSAGE_BROADCAST = 11000;
+	public static final int MESSAGE_UNICAST = 11001;
+	public static final int HANDSHAKE = 11002;
 
+	// TYPES
+	public static final int TYPE_BUNDLE = 1;
+	public static final int TYPE_STRING = 2;
+	public static final int TYPE_ACK = 3;
+	public static final int TYPE_NAK = 4;
+	public static final int TYPE_FORWARD = 5;
+	public static final int TYPE_URL = 6;
+	public static final int TYPE_DOWNLOAD_PART_REQUEST = 7;
+	public static final int TYPE_UPDATE_PROGRESS = 8;
+	public static final int TYPE_FORWARD_PART = 9;
+	public static final int TYPE_PART_FROM_SLAVE = 10;
+	public static final int TYPE_ONLY_PART_SLAVE = 11;
+	
+	
+	public static final int FROM_SLAVE = 111;
+	public static final int FROM_MASTER = 112;
+		
+	
 	/**
 	 * To check if all process is done
 	 * @return true if all parts are downloaded
 	 */
 	public static boolean o_allDone(){
 		boolean ans = true;
-		for(int i=0; i<isDone.length; i++){
+		for(int i=0; i<Helper.o_no_parts; i++){
 			ans = ans && isDone[i];
 		}
 		return ans;
@@ -147,15 +172,23 @@ public abstract class Helper extends Activity{
 		o_pool_config = null;
 		o_config = null;
 		o_slave_pool = null;
-		o_isDownloading = null;
-		o_isRunning = null;
+		o_isDownloading = new boolean[7];
+		o_isRunning = new boolean[7];
+		isDone = new boolean[o_maxParts];
 		o_progress = 0;
 		o_size = 0x80000;
 		o_offer = 0;
-		o_url = null;
-		isDone = null;
+		o_url = null;		
 		o_no_devices = 1;
 		o_no_parts = 0;		
+	}
+	
+	static{
+		//Make directory /AndroidSync
+		Helper.o_path.mkdir();
+		isDone = new boolean[o_maxParts];
+		o_isDownloading = new boolean[7];
+		o_isRunning = new boolean[7];
 	}
 	
 	
