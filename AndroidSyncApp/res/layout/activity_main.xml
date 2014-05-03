@@ -6,6 +6,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+     android:background="@drawable/back1"
     tools:context=".MainActivity" >
 
     <RadioButton
@@ -17,6 +18,10 @@
         android:layout_alignRight="@+id/seekBar1"
         android:layout_marginTop="27dp"
         android:text="@string/o_master" 
+        android:textAlignment="center"
+        android:textStyle="bold"
+        android:textSize="23dp"
+        android:textColor="@android:color/black"
         android:onClick="switchMaster"/>
 
     <Button
@@ -27,7 +32,8 @@
         android:layout_alignLeft="@+id/seekBar1"
         android:layout_marginBottom="58dp"
         android:onClick="startMP"
-        android:text="@string/o_play" />
+        android:text="@string/o_play" 
+        android:visibility="invisible"/>
 
     <RadioButton
         android:id="@+id/radioButton2"
@@ -37,6 +43,9 @@
         android:layout_alignRight="@+id/radioButton1"
         android:layout_below="@+id/radioButton1"
         android:text="@string/o_slave" 
+        android:textStyle="bold"
+        android:textSize="23dp"
+        android:textColor="@android:color/black"
         android:onClick="switchSlave"/>
 
     <SeekBar
@@ -45,7 +54,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="42dp" />
+        android:layout_marginBottom="42dp" 
+        android:visibility="invisible"/>
 
     <TextView
         android:id="@+id/textView1"
@@ -53,6 +63,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/radioButton2"
         android:layout_marginTop="19dp"
-        android:text="@string/o_pairedBT" />
+        android:text="@string/o_pairedBT" 
+        android:visibility="invisible"/>
 
 </RelativeLayout>

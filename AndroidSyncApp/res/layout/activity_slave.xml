@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent" 
+    android:background="@drawable/back1">
     
 <!--  Add your Buttons from here on with prefix r_ for ritika, s_ sonam Happy Coding-->
 
@@ -13,7 +14,9 @@
         android:layout_alignParentTop="true"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="20dp"
-        android:text="@string/o_slave_url" />
+        android:text="@string/o_slave_url" 
+         android:textColor="@android:color/white" 
+        android:gravity="center"/>
 
     <ProgressBar
         android:id="@+id/os_progress"
@@ -33,7 +36,10 @@
         android:layout_below="@+id/os_progress"
         android:layout_marginTop="50dp"
         android:text="@string/o_slave_updates"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceSmall" 
+        android:textColor="@android:color/white"
+         
+        android:gravity="center"/>
 
     <Button
         android:id="@+id/os_reset"
