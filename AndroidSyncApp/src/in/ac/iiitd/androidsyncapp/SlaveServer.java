@@ -48,6 +48,7 @@ class SlaveServer extends Thread{
 				if(!set){
 					String o_s = ((Bundle) msg.obj).getString("url");					
 					Helper.o_filename = o_s.substring(o_s.lastIndexOf('/'));
+					Log.v(TAG, "File Name : " + Helper.o_filename);
 					set = true;
 				}
 				new DownloadFile((Bundle) msg.obj, oh_SlaveServer).start();
@@ -67,18 +68,23 @@ class SlaveServer extends Thread{
 				ActivitySlave.oh_Slave.obtainMessage(Helper.TYPE_STRING, -1, -1, 
 						b.getString("isDone")).sendToTarget();
 				
-				Log.v(TAG, "Sending Part" + b.getInt("part") + " to Master");				
+				Log.v(TAG, "Sending Part" + b.getInt("id") + " to Master");				
 				//bcomm.sendFile((Bundle) msg.obj, Helper.TYPE_FORWARD_PART);
-				bcomm.sendFile(b.getString("path"), b.getInt("id"), b.getInt("deviceID"));
+				bcomm.sendFile(b.getString("path"), b.getInt("id"), 0);
+				break;
 				
-			case Helper.TYPE_NAK_PART:
+			case Helper.TYPE_NAK_PART:		// for future
 				b = (Bundle) msg.obj;
+				
+				break;
+				
+			case Helper.TYPE_DOWNLOAD_BAR_UPDATE:
 				
 				break;
 				
 			default:
 				if(msg.arg1 == Helper.TYPE_DOWNLOAD_COMPLETE){
-					ActivitySlave.oh_Slave.obtainMessage(Helper.TYPE_DOWNLOAD_COMPLETE, "Sucess Please view the file");
+					ActivitySlave.oh_Slave.obtainMessage(Helper.TYPE_DOWNLOAD_COMPLETE, "Sucess Please view the file\n@Furious-Zombie-Salt");
 				}
 			}
 		}	

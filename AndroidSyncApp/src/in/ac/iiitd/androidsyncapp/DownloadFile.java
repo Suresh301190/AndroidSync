@@ -110,7 +110,7 @@ public class DownloadFile extends Thread{
 
 			}
 			else{
-				o_config.putString("isDone", "Partial Downloading Not possible");					
+				o_config.putString("isDone", "Partial Downloading Not possible\n@Furious-Zombie-Salt");
 			}
 
 		} catch (Exception e) {

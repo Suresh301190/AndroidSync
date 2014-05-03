@@ -117,7 +117,7 @@ public class BluetoothComm{
 	/**
 	 * Starts the Listening phase of the device
 	 */
-	public void start(){
+	public synchronized void start(){
 		o_AcceptThread = new AcceptThread();
 		if(execLocal == null){
 			//execGlobal.execute(o_AcceptThread);
@@ -150,7 +150,7 @@ public class BluetoothComm{
 	 * @param socket socket of remote device
 	 * @param type MESSAGE_TYPE
 	 */
-	private void  mmSocketFromAccept(BluetoothSocket socket, int MESSAGE_TYPE){
+	private synchronized void  mmSocketFromAccept(BluetoothSocket socket, int MESSAGE_TYPE){
 
 		o_ConnectedThread = new ConnectedThread(socket);
 		if(MESSAGE_TYPE == Helper.HANDSHAKE){
@@ -171,7 +171,7 @@ public class BluetoothComm{
 	 * @param socket socket of remote device
 	 * @param type MESSAGE_TYPE
 	 */
-	private void mmSocketFromConnect(BluetoothSocket socket, int type) {
+	private synchronized void mmSocketFromConnect(BluetoothSocket socket, int type) {
 		// TODO Auto-generated method stub
 
 		if(type == Helper.HANDSHAKE){
@@ -200,7 +200,7 @@ public class BluetoothComm{
 	 * @param msg message to send
 	 * @param i deviceID to which needs to send
 	 */
-	public void sendMessage(String msg, int i){
+	public synchronized  void sendMessage(String msg, int i){
 		Log.v(TAG, "Sending Message to " + i);
 
 		synchronized (this) {
@@ -215,13 +215,14 @@ public class BluetoothComm{
 	 * @param partID
 	 * @param deviceID 
 	 */	
-	public void sendFile(final String path, final int partID, final int deviceID) {
+	public synchronized void sendFile(final String path, final int partID, final int deviceID) {
 
 		Runnable r = new Runnable() {
 
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
+				o_ConnectedThread = o_Connections.get(deviceID);
 				final File file = new File(path);
 				Log.v(TAG, "Sending Only Part File");
 				o_ConnectedThread.write(N_FILE);
@@ -241,7 +242,7 @@ public class BluetoothComm{
 	 * @param obj {@link Bundle} to send which contains path to file "path"
 	 * @param type Message Type
 	 */
-	public void sendFile(final Bundle config,final int type) {
+	public synchronized void sendFile(final Bundle config,final int type) {
 		// TODO Auto-generated method stub
 
 		Runnable r = new Runnable() {
@@ -250,6 +251,7 @@ public class BluetoothComm{
 			public void run() {
 				// TODO Auto-generated method stub
 				Log.v(TAG, "Sending Part File");
+
 				o_ConnectedThread.write(FILE);
 				for(String key:config.keySet()){
 					Object obj = config.get(key);
@@ -308,7 +310,7 @@ public class BluetoothComm{
 	 * To ShutDown the local {@link ExecutorService} and wait until all scheduled tasks are completed.
 	 * @return true if {@link ExecutorService} shutdown normally else false;
 	 */
-	public boolean isFinished(){
+	public synchronized  boolean isFinished(){
 		execLocal.shutdown();
 		boolean shutdown = false;
 		try{
@@ -318,11 +320,11 @@ public class BluetoothComm{
 		}
 		return shutdown;
 	}
-	
-	public void sendPartFail(final int partID, final int deviceID){
-		
+
+	public synchronized  void sendPartFail(final int partID, final int deviceID){
+
 		Runnable r = new Runnable() {
-			
+
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
@@ -331,7 +333,7 @@ public class BluetoothComm{
 				o_ConnectedThread.writeInt(deviceID);
 			}
 		};
-		
+
 		execSendReceiveData.schedule(r, 1, TimeUnit.SECONDS);
 	}
 
@@ -490,6 +492,7 @@ public class BluetoothComm{
 				try {
 					// Read from the InputStream
 					String s = ByteStream.toString(mmInStream);
+					Log.v(TAG, s);
 
 					if(s.equals(BUNDLE)){
 						oh_Handler.obtainMessage(Helper.TYPE_BUNDLE, -1, -1, getBundle()).sendToTarget();
@@ -513,13 +516,15 @@ public class BluetoothComm{
 								part = ByteStream.toInt(mmInStream), deviceID = ByteStream.toInt(mmInStream), null);
 
 						Log.v(TAG, "part id: " + part  + " DeviceID : " + deviceID);
-						if(part != Helper.TYPE_DOWNLOAD_COMPLETE) receiveFile(Helper.o_path + "/tmp" + part);
-						else receiveFile(Helper.o_path + Helper.o_filename);
-						oh_Handler.sendMessage(msg);
 						
+						if(part == Helper.TYPE_DOWNLOAD_COMPLETE) receiveFile(Helper.o_path + Helper.o_filename);
+						else receiveFile(Helper.o_path + "/tmp" + part);
+						
+						oh_Handler.sendMessage(msg);
+
 						//*/
 						Runnable r = new Runnable() {
-							
+
 							@Override
 							public void run() {
 								// TODO Auto-generated method stub
@@ -528,9 +533,12 @@ public class BluetoothComm{
 								try {
 									msg = oh_Handler.obtainMessage(Helper.TYPE_ONLY_PART_SLAVE, 
 											part = ByteStream.toInt(mmInStream), deviceID = ByteStream.toInt(mmInStream), null);
-									
+
 									Log.v(TAG, "part id: " + part  + " DeviceID : " + deviceID);
+
+									//if(part == Helper.TYPE_DOWNLOAD_COMPLETE) receiveFile(Helper.o_path + Helper.o_filename);
 									receiveFile(Helper.o_path + "/tmp" + part);
+
 									oh_Handler.sendMessage(msg);
 								} catch (IOException e) {
 									// TODO Auto-generated catch block
@@ -538,8 +546,8 @@ public class BluetoothComm{
 								}
 							}
 						};
-						
-						//execSendReceiveData.schedule(r, 2, TimeUnit.SECONDS);
+
+						//execSendReceiveData.schedule(r, 4, TimeUnit.SECONDS);
 					}
 					else if(s.equals(P_FAIL)){
 						int id = ByteStream.toInt(mmInStream), deviceID = ByteStream.toInt(mmInStream);
@@ -569,7 +577,7 @@ public class BluetoothComm{
 				Log.v(TAG, "Receiving File");
 				ByteStream.toFile(mmInStream, file);
 				Log.v(TAG, "File Received");
-				
+
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				Log.v(TAG, e.toString());

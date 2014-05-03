@@ -4,9 +4,6 @@ AndroidSync
 Collaborative Video Downloader 
 Android-Sync
 
-@author
-Suresh Rangaswamy
-
 Abstract
 
 Collaborative video downloader is an application which enforces a collaborative method on smart phones for video streaming among multiple users, present at same location, wishing to download the same video without losing out on quality and time. Today, group of known people wanting to watch same video have to download the video individually on their mobile phones, which is at times accompanied by degraded video quality and long buffering time. With this application we propose a solution which provides a quick and efficient approach which makes use of the resources on all smartphones of the group in a cooperative way so as to improve the video viewing experience.
@@ -52,6 +49,9 @@ In case of failure the DownloadManager makes sure the file is downloaded by doin
 Once all the parts are downloaded successfully, master performs stitching operation on its side.
 
 The complete video is then broadcasted to all the slaves.
+
+@author
+Suresh Rangaswamy
 
 
 

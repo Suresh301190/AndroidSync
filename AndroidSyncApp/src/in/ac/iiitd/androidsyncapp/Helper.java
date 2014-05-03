@@ -28,7 +28,7 @@ public abstract class Helper extends Activity{
 
 	public static final int o_maxParts = 8;
 	
-	public static long o_TimeOut = 20000000000l;
+	public static long o_TimeOut = 50000000000l;
 	
 	/**To Store the data type of config */
 	public static final HashSet<String> _conString = 
@@ -102,7 +102,7 @@ public abstract class Helper extends Activity{
 	/**
 	 * No. of devices currently being used to download the file
 	 */
-	public static int o_no_devices = 0;
+	public static int o_no_devices = 1;
 
 	/**
 	 * True if part'i' is currently being downloaded by any device...
@@ -148,6 +148,7 @@ public abstract class Helper extends Activity{
 	public static final int TYPE_PART_FAILED = 12;
 	public static final int TYPE_NAK_PART = 13;
 	public static final int TYPE_DOWNLOAD_COMPLETE = 14;
+	public static final int TYPE_DOWNLOAD_BAR_UPDATE = 15;
 	
 	
 	public static final int FROM_SLAVE = 111;
@@ -191,10 +192,9 @@ public abstract class Helper extends Activity{
 		o_config = null;
 		o_slave_pool = null;
 		o_isDownloading = new boolean[7];
-		o_isRunning = new boolean[7];
+		o_isRunning = new boolean[o_maxParts];
 		isDone = new boolean[o_maxParts];
 		o_progress = 0;
-		o_size = 0x80000;
 		o_offer = 0;
 		o_url = null;		
 		o_no_devices = 1;
@@ -207,7 +207,7 @@ public abstract class Helper extends Activity{
 		Helper.o_path.mkdir();
 		isDone = new boolean[o_maxParts];
 		o_isDownloading = new boolean[7];
-		o_isRunning = new boolean[7];
+		o_isRunning = new boolean[o_maxParts];
 		o_scheduledOn = new long[7];
 	}
 	
