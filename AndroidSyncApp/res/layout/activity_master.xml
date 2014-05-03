@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical" 
+    android:background="@drawable/back1">
 
     <EditText
         android:id="@+id/o_URL_box_m"
@@ -33,6 +34,8 @@
         android:layout_below="@+id/o_progMaster"
         android:layout_marginTop="28dp"
         android:text="@string/o_update"
+       android:textColor="@android:color/white"
+        android:gravity="center_horizontal"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <Button
@@ -68,11 +71,10 @@
         android:id="@+id/o_progMaster"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="80dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/o_defImage"
-        android:layout_marginTop="24dp" />
+        android:layout_below="@+id/o_defImage"/>
 
     <Button
         android:id="@+id/o_defFile"
