@@ -68,14 +68,11 @@ public class DownloadFile extends Thread{
 			conn.setRequestMethod("GET");
 			conn.setRequestProperty("Range", "bytes=" + o_config.getInt("start") + '-' + o_config.getInt("end"));
 
-			//Log.v(o_download, "bytes=" + o_config.getInt("start") + '-' + o_config.getInt("end"));
-			//Log.v(o_download, "Response Code : " + conn.getResponseCode());
+			Log.v(TAG, "bytes=" + o_config.getInt("start") + '-' + o_config.getInt("end"));
+			Log.v(TAG, "Response Code : " + conn.getResponseCode());
 
 			if(conn.getResponseCode() == HttpURLConnection.HTTP_PARTIAL){
 				//Log.v(TAG, "Partial Download possible... Downloading");
-
-				//To store path in bundle
-				o_config.putString("path", Helper.o_path + "/tmp" + o_config.getInt("id"));// + o_config.getString("ext"));
 
 				o_os = new FileOutputStream(new File(o_config.getString("path")));
 
@@ -118,8 +115,11 @@ public class DownloadFile extends Thread{
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
+			e.printStackTrace();
 			Log.v(TAG, e.toString() + " Crash count : " + o_config.getInt("crash"));
-			if(o_config.getInt("crash") < Helper.o_crash_threshold){
+			int c;
+			if((c = o_config.getInt("crash")) < Helper.o_crash_threshold){
+				o_config.putInt("crash", c+1);
 				run();
 			}else{
 				o_config.putString("isDone", "Download Failed... Try Again");

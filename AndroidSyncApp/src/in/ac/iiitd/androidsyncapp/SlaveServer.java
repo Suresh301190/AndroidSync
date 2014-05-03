@@ -30,10 +30,11 @@ class SlaveServer extends Thread{
 				}
 				ActivitySlave.oh_Slave.obtainMessage(Helper.TYPE_URL, -1, -1, Helper.o_config.get("url")).sendToTarget();
 				/*
-				Bundle b = new Bundle(Helper.o_config);
-				b.putInt("start", 0);
-				b.putInt("end", Helper.o_config.getInt("len"));
-				b.putInt("deviceID", 1);
+				Bundle bb = new Bundle(Helper.o_config);
+				bb.putInt("start", 0);
+				bb.putInt("end", Helper.o_config.getInt("len"));
+				bb.putInt("deviceID", 1);
+				Log.v(TAG, "Download Started");
 				new DownloadFile((Bundle) msg.obj, oh_SlaveServer).start();
 				//*/
 				break;
@@ -46,12 +47,18 @@ class SlaveServer extends Thread{
 				
 			case Helper.TYPE_UPDATE_PROGRESS:
 				// Redirect Message to Slave Activity
-				ActivitySlave.oh_Slave.obtainMessage(Helper.TYPE_UPDATE_PROGRESS, Helper.o_progress, -1, msg.obj);
+				ActivitySlave.oh_Slave.obtainMessage(Helper.TYPE_UPDATE_PROGRESS, 
+						Helper.o_progress, -1, msg.obj).sendToTarget();
 				break;
 				
 			case Helper.TYPE_FORWARD_PART:
+				
 				Bundle b = (Bundle) msg.obj;
-				ActivitySlave.oh_Slave.obtainMessage(Helper.TYPE_STRING, -1, -1, b.getString("isDone"));
+				
+				// Redirect Message to Slave Activity
+				ActivitySlave.oh_Slave.obtainMessage(Helper.TYPE_STRING, -1, -1, 
+						b.getString("isDone")).sendToTarget();
+				
 				Log.v(TAG, "Sending Part" + b.getInt("part") + " to Master");				
 				//bcomm.sendFile((Bundle) msg.obj, Helper.TYPE_FORWARD_PART);
 				bcomm.sendFile(b.getString("path"), b.getInt("id"), b.getInt("deviceID"));

@@ -3,6 +3,7 @@ package in.ac.iiitd.androidsyncapp;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -30,6 +31,8 @@ public class ActivityMaster extends Activity{
 	 */
 	private static final int o_enableBT = ++o_activityID, o_enableDiscovery = ++o_activityID;
 	private static final String o_master = "AndroidSync ActivityMaster";
+	
+	public static final ExecutorService execMaster = Executors.newCachedThreadPool();
 
 	public static ProgressBar o_progBar;
 
@@ -68,10 +71,12 @@ public class ActivityMaster extends Activity{
 				//Log.v(o_master, "Background thread started");
 
 				//o_config.putString("url", "https://dl.dropboxusercontent.com/u/108785914/TechReport.pdf");
-				Helper.o_config.putString("url", "https://dl.dropbox.com/u/9097066/image.png");
+				//Helper.o_config.putString("url", "https://dl.dropbox.com/u/9097066/image.png");
+				Helper.o_config.putString("url", "https://dl.dropbox.com/u/9097066/barfi.mp4");
 				Helper.o_config.putInt("id", 1);
 
-				new StartOfMain(oh_Master, Helper.seqExec).start();
+				execMaster.execute(new StartOfMain(oh_Master, Helper.seqExec));
+				//new StartOfMain(oh_Master, Helper.seqExec).start();
 				//bcomm = new BluetoothComm(oh_Master, null);
 				//bcomm.connect(o_myBT.getRemoteDevice("41:2F:C6:0A:F5:52"));		// Mom's
 				//bcomm.connect(o_myBT.getRemoteDevice("18:26:66:6B:33:1D"), HANDSHAKE);		// Ritika

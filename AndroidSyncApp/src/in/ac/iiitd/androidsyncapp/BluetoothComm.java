@@ -1,7 +1,6 @@
 package in.ac.iiitd.androidsyncapp;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -19,6 +18,7 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -35,22 +35,6 @@ public class BluetoothComm{
 
 	private static final String TAG = "AndroidSync BluetoothComm";
 
-	/**
-	 * Configuration which contains 
-	 * deviceID -- (int) task Scheduled on, 
-	 * id -- (int) Part id, 
-	 * start -- start of part block,
-	 * end -- (int) end of part block, 
-	 * isDone -- (String) message if download was successful/ Failed, 
-	 * url -- (String) url from which to download, 
-	 * size -- (int) content length, 
-	 * path -- (String) directory where the part was stored in sd-card, 
-	 * name -- (String) name of the file
-	 * crash -- (int) crash count for the respective part
-	 * isDone -- (String) Message regarding the part file success/failure.
-	 */
-	private Bundle o_config;
-
 	private static final UUID MY_UUID = UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
 	private static final String NAME = "AndroidSync";
 
@@ -59,14 +43,9 @@ public class BluetoothComm{
 	/**
 	 * States of the connection
 	 */
-	private static final int STATE_IDLE = 0xf000, STATE_CONNECTING = 0xf001, STATE_CONNECTED = 0xf002;
+	//private static final int STATE_IDLE = 0xf000, STATE_CONNECTING = 0xf001, STATE_CONNECTED = 0xf002;
 
 	//private static final int semaphore;
-
-	/**
-	 * True if Connection was successful
-	 */
-	private boolean o_conn_success;
 
 	// Member fields
 	private final BluetoothAdapter o_Adapter;
@@ -79,7 +58,7 @@ public class BluetoothComm{
 	private SparseArray<ConnectedThread> o_Connections;
 
 	/** Service to execute Jobs in Sequential Order*/
-	private static final ExecutorService execGlobal = null;//Executors.newSingleThreadExecutor();
+	private static final ExecutorService execGlobal = Executors.newSingleThreadExecutor();
 	private static final ExecutorService execSendReceiveData = Executors.newSingleThreadExecutor();
 
 	/**Local Sequential thread executor*/
@@ -246,11 +225,13 @@ public class BluetoothComm{
 				o_ConnectedThread.write(N_FILE);
 				o_ConnectedThread.writeInt(partID);
 				o_ConnectedThread.writeInt(deviceID);
+				//o_ConnectedThread.write(path);
 				o_ConnectedThread.writeFile(file);
 			}
 		};
 
 		execSendReceiveData.execute(r);
+		//new Thread(r).start();
 	}
 
 	/**
@@ -290,7 +271,7 @@ public class BluetoothComm{
 	 * @param deviceID device id to which to send
 	 * @param type of message {@link Helper} like TYPE_BUNDLE, TYPE_PART
 	 */
-	public synchronized void sendBundle(final Bundle config, final int deviceID,final int type){
+	public void sendBundle(final Bundle config, final int deviceID,final int type){
 
 		Runnable r = new Runnable() {
 
@@ -300,7 +281,7 @@ public class BluetoothComm{
 				Log.v(TAG, "Sending Bundle to " + deviceID);
 				final ConnectedThread ConnectedThread = o_Connections.get(deviceID);
 				Log.v(TAG, "Broadcasting TYPE");
-				
+
 				if(type == Helper.TYPE_BUNDLE) ConnectedThread.write(BUNDLE);
 				else if(type == Helper.TYPE_DOWNLOAD_PART_REQUEST) ConnectedThread.write(PART);
 				for(String key:config.keySet()){
@@ -426,6 +407,7 @@ public class BluetoothComm{
 				// Connect the device through the socket. This will block
 				// until it succeeds or throws an exception
 				mmSocket.connect();
+				Thread.sleep(500);
 			} catch (IOException connectException) {
 				Log.v(TAG, "Failed to Connect to " + mmSocket.getRemoteDevice().getName());
 				// Unable to connect; close the socket and get out
@@ -437,13 +419,16 @@ public class BluetoothComm{
 				}
 				Log.v(TAG, "Retrying to connect");
 				try {
-					Thread.sleep(200);
+					Thread.sleep(2000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				run();
 				return;
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			Log.v(TAG, "Success Connected to " + mmSocket.getRemoteDevice().getName());
 			// Do work to manage the connection (in a separate thread)
@@ -482,6 +467,7 @@ public class BluetoothComm{
 
 		public void run() {
 			// Keep listening to the InputStream until an exception occurs
+
 			while (true) {
 				try {
 					// Read from the InputStream
@@ -502,16 +488,19 @@ public class BluetoothComm{
 						receiveFile(b.getString("path"));
 					}
 					else if(s.equals(N_FILE)){
-						Log.v(TAG, "Receiving File Only");
-						oh_Handler.obtainMessage(Helper.TYPE_ONLY_PART_SLAVE, ByteStream.toInt(mmInStream), ByteStream.toInt(mmInStream), null);
-						receiveFile(ByteStream.toString(mmInStream));
+
+						Log.v(TAG, "Receiving File Only"); int part, deviceID;
+						Message msg = oh_Handler.obtainMessage(Helper.TYPE_ONLY_PART_SLAVE, 
+								part = ByteStream.toInt(mmInStream), deviceID = ByteStream.toInt(mmInStream), null);
+
+						Log.v(TAG, "part id: " + part  + " DeviceID : " + deviceID);
+						receiveFile(Helper.o_path + "/tmp" + part);
+						oh_Handler.sendMessage(msg);
 					}
 					else{
 						oh_Handler.obtainMessage(Helper.TYPE_STRING, -1, -1, s).sendToTarget();
 						Log.v(TAG, s);
 					}
-
-
 				} catch (IOException e) {
 					Log.v(TAG, "Connected Thread" +e.toString());
 					e.printStackTrace();
@@ -531,6 +520,7 @@ public class BluetoothComm{
 				Log.v(TAG, "Receiving File");
 				ByteStream.toFile(mmInStream, file);
 				Log.v(TAG, "File Received");
+				
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				Log.v(TAG, e.toString());
@@ -543,7 +533,7 @@ public class BluetoothComm{
 		 * @return Parsed Bundle which contains all the necessary iniformation.
 		 * @throws IOException
 		 */
-		private synchronized Bundle getBundle() {
+		private Bundle getBundle() {
 			// TODO Auto-generated method stub
 
 			Bundle b = new Bundle();

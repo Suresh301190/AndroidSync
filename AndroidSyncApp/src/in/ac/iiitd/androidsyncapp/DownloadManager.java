@@ -5,7 +5,6 @@ import java.util.concurrent.Executors;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
 public class DownloadManager extends Thread{
@@ -29,24 +28,6 @@ public class DownloadManager extends Thread{
 	private Bundle o_config;
 	
 	private final static ExecutorService execDownloadQueue = Executors.newCachedThreadPool();
-
-	/*
-	private static final Handler oh_DownLoadManager = new Handler(){
-
-		@Override
-		public void handleMessage(Message msg){
-			switch(msg.what){
-			case Helper.TYPE_FORWARD_PART:
-				Helper.o_partDone(((Bundle) msg.obj).getInt("id"));
-				break;
-				
-			case Helper.TYPE_UPDATE_PROGRESS:
-				ActivityMaster.oh_Master.obtainMessage(Helper.TYPE_UPDATE_PROGRESS, msg.arg1, -1, msg.obj).sendToTarget();
-				break;
-			}
-		}
-	};
-	//*/
 
 	private final ExecutorService seq_DownloadManager;
 
@@ -126,7 +107,7 @@ public class DownloadManager extends Thread{
 						//Log.v(o_master, "Sleeping in minor thread for " + Helper.o_sleep/1000 + 's');
 					}
 
-					// get a free config 
+					// get a free config
 					o_config = o_getFromPool();
 				}
 
@@ -188,5 +169,5 @@ public class DownloadManager extends Thread{
 			}
 		}
 		return Helper.o_no_devices;
-	}	
+	}
 }

@@ -25,7 +25,7 @@ public abstract class Helper extends Activity{
 	
 	public static ExecutorService seqExec = Executors.newSingleThreadExecutor();
 
-	public static final int o_maxParts = 2;
+	public static final int o_maxParts = 8;
 	
 	/**To Store the data type of config */
 	public static final HashSet<String> _conString = 
@@ -138,6 +138,7 @@ public abstract class Helper extends Activity{
 	public static final int TYPE_FORWARD_PART = 9;
 	public static final int TYPE_PART_FROM_SLAVE = 10;
 	public static final int TYPE_ONLY_PART_SLAVE = 11;
+	public static final int TYPE_PART_FAILED = 12;
 	
 	
 	public static final int FROM_SLAVE = 111;

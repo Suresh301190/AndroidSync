@@ -16,7 +16,6 @@ import android.util.SparseArray;
  * Actually Runs the downloading in parts in parallel by first creating config files for each thread
  * which are stored in o_pool_config Bundles.
  * @author Suresh
- *
  */
 public class StartOfMain extends Thread{
 
@@ -85,16 +84,18 @@ public class StartOfMain extends Thread{
 				for(int i=0, offset = 0; i<Helper.isDone.length; i++, offset++) {
 					Bundle b = new Bundle();
 					//Crash count
+					//To store path in bundle
 					b.putInt("crash", 0);
 					b.putInt("id", i);
 					b.putInt("start", offset);
 					b.putInt("end", Math.min(offset+=Helper.o_size, len));
+					b.putString("path", Helper.o_path + "/tmp" + b.getInt("id"));// + o_config.getString("ext"));
 					Helper.o_pool_config.add(b);		
 				}
 
 				if(bcomm.isFinished()){
 					Log.v(TAG, "Download Manager Started");
-					new DownloadManager(oh_Start, bcomm).start();
+					ActivityMaster.execMaster.execute(new DownloadManager(oh_Start, bcomm));
 				}
 				else{
 					Log.v(TAG, "Error");

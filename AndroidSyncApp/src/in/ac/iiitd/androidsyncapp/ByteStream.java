@@ -9,6 +9,9 @@ import java.io.FileInputStream;
 import android.util.Log;
 
 public class ByteStream {
+	
+	private static final String TAG = "AndroidSync ByteStream";
+	
 	private static byte[] toByteArray(int in_int) {
 		byte a[] = new byte[4];
 		for (int i = 0; i < 4; i++) {
@@ -108,9 +111,10 @@ public class ByteStream {
 
 		int len_read = 0;
 		int total_len_read = 0;
-
+		int i = 0;
 		while (total_len_read + buf_size <= len) {
 			len_read = ins.read(buffer);
+			if(++i%500 == 0) Log.v(TAG, "Receiving");
 			total_len_read += len_read;
 			fos.write(buffer, 0, len_read);
 		}
@@ -118,6 +122,12 @@ public class ByteStream {
 		if (total_len_read < len) {
 			toFile(ins, fos, len - total_len_read, buf_size / 2);
 		}
+		else{
+			fos.flush();
+			fos.close();
+		}
+		
+		
 	}
 
 	private static void toFile(InputStream ins, File file, int len)
@@ -125,7 +135,7 @@ public class ByteStream {
 
 		FileOutputStream fos = new FileOutputStream(file);
 
-		toFile(ins, fos, len, 4096);
+		toFile(ins, fos, len, 1024);
 	}
 
 	public static void toFile(InputStream ins, File file)
@@ -140,13 +150,14 @@ public class ByteStream {
 
 		toStream(os, (int) file.length());
 
-		byte b[] = new byte[4096];
+		byte b[] = new byte[1024];
 		InputStream is = new FileInputStream(file);
 		int numRead = 0;
-
+		int i = 0;
 		while ((numRead = is.read(b)) > 0) {
-			Log.v("toStream", "" + numRead);
+			if(++i%500 == 0) Log.v(TAG, "Sending");
 			os.write(b, 0, numRead);
+			//if((++ct%5) == 0) os.flush();
 		}
 		os.flush();
 	}
