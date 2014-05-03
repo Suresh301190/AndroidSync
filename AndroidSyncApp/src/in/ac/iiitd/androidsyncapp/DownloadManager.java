@@ -61,7 +61,7 @@ public class DownloadManager extends Thread{
 				}
 			};
 
-			seq_DownloadManager.execute(broadCastBundle);
+			//seq_DownloadManager.execute(broadCastBundle);
 
 			int deviceID = 0;
 
@@ -85,7 +85,7 @@ public class DownloadManager extends Thread{
 						// Set the downloading and running flags.
 						Helper.o_isDownloading[deviceID] = true;
 						Helper.o_isRunning[o_config.getInt("id")] = true;
-
+						Helper.o_scheduledOn[deviceID] = System.nanoTime();
 						new DownloadFile(o_config, oh_Manager).start();
 					}
 					// To run on slave with the respective deviceID
@@ -99,12 +99,13 @@ public class DownloadManager extends Thread{
 						Helper.o_isDownloading[deviceID] = true;
 						Helper.o_isRunning[o_config.getInt("id")] = true;
 
+						Helper.o_scheduledOn[deviceID] = System.nanoTime();
 						bcomm.sendBundle(o_config, deviceID, Helper.TYPE_DOWNLOAD_PART_REQUEST);
 					} //*/
 					else{
 						// sleep...
 						Thread.sleep(Helper.o_sleep);
-						//Log.v(o_master, "Sleeping in minor thread for " + Helper.o_sleep/1000 + 's');
+						Log.v(TAG, "Sleeping in minor thread for " + Helper.o_sleep/1000 + 's');
 					}
 
 					// get a free config
@@ -117,7 +118,7 @@ public class DownloadManager extends Thread{
 				}
 				else{
 					Thread.sleep(Helper.o_sleep);
-					//Log.v(o_master, "Sleeping in Major Thread for "  + Helper.o_sleep/1000 + 's');
+					Log.v(TAG, "Sleeping in Major Thread for "  + Helper.o_sleep/1000 + 's');
 				}				
 			}
 		}catch(Exception e){
@@ -129,16 +130,8 @@ public class DownloadManager extends Thread{
 
 	protected void onPostExecute() {
 		// to receive all the parts from slaves in sequential order
-		getPartsFromSlave();
 		Log.v(TAG, "Merging Started");
-		new MergeFile(oh_Manager).start();
-	}
-
-
-	private void getPartsFromSlave() {
-		// TODO Auto-generated method stub
-
-
+		new MergeFile(oh_Manager, bcomm).start();
 	}
 
 	/**

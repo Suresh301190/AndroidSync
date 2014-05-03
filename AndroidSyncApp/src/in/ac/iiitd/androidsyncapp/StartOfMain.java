@@ -50,6 +50,7 @@ public class StartOfMain extends Thread{
 			//*
 
 			String o_s = Helper.o_config.getString("url");
+			Log.v(TAG, "Setting URL");
 			Helper.o_url = new URL(o_s);
 
 			Helper.o_config.putString("ext", o_s.substring(o_s.length()-4, o_s.length()));
@@ -57,7 +58,9 @@ public class StartOfMain extends Thread{
 
 			Helper.o_config.putString("name", o_s.substring(o_s.lastIndexOf('/')));
 
+			Log.v(TAG, "Requesting URL");
 			HttpURLConnection conn = (HttpURLConnection) (new URL(Helper.o_config.getString("url"))).openConnection();
+			
 			conn.setRequestMethod("HEAD");
 			Log.v(TAG, "Connection status : " + conn.getResponseCode());
 			if(conn.getResponseCode() == HttpURLConnection.HTTP_OK){
@@ -90,6 +93,7 @@ public class StartOfMain extends Thread{
 					b.putInt("start", offset);
 					b.putInt("end", Math.min(offset+=Helper.o_size, len));
 					b.putString("path", Helper.o_path + "/tmp" + b.getInt("id"));// + o_config.getString("ext"));
+					b.putString("url", Helper.o_config.getString("url"));
 					Helper.o_pool_config.add(b);		
 				}
 

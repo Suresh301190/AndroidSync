@@ -5,10 +5,10 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URL;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
 public class DownloadFile extends Thread{
@@ -63,7 +63,7 @@ public class DownloadFile extends Thread{
 		// TODO Auto-generated method stub
 
 		try {
-			conn = (HttpURLConnection) Helper.o_url.openConnection();
+			conn = (HttpURLConnection) (new URL(o_config.getString("url"))).openConnection();
 
 			conn.setRequestMethod("GET");
 			conn.setRequestProperty("Range", "bytes=" + o_config.getInt("start") + '-' + o_config.getInt("end"));
@@ -122,6 +122,9 @@ public class DownloadFile extends Thread{
 				o_config.putInt("crash", c+1);
 				run();
 			}else{
+				oh_DownloadFile.obtainMessage(Helper.TYPE_NAK_PART, o_config.getInt("id"),
+						o_config.getInt("deviceID"), null).sendToTarget();
+				
 				o_config.putString("isDone", "Download Failed... Try Again");
 			}
 		}

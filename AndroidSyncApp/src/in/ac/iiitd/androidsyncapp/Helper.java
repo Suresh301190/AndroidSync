@@ -13,6 +13,7 @@ import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.util.SparseArray;
 
 /**
@@ -26,6 +27,8 @@ public abstract class Helper extends Activity{
 	public static ExecutorService seqExec = Executors.newSingleThreadExecutor();
 
 	public static final int o_maxParts = 8;
+	
+	public static long o_TimeOut = 20000000000l;
 	
 	/**To Store the data type of config */
 	public static final HashSet<String> _conString = 
@@ -111,6 +114,8 @@ public abstract class Helper extends Activity{
 	 */
 	public static boolean[] o_isDownloading;
 	
+	public static long[] o_scheduledOn;
+	
 	/**
 	 * Default sleep Timer for Major Thread
 	 */
@@ -120,6 +125,8 @@ public abstract class Helper extends Activity{
 	 * To set download Progress
 	 */
 	public static int o_progress = 0;
+
+	public static String o_filename;
 	
 	// Message Types
 	public static final int MESSAGE_BROADCAST = 11000;
@@ -139,6 +146,8 @@ public abstract class Helper extends Activity{
 	public static final int TYPE_PART_FROM_SLAVE = 10;
 	public static final int TYPE_ONLY_PART_SLAVE = 11;
 	public static final int TYPE_PART_FAILED = 12;
+	public static final int TYPE_NAK_PART = 13;
+	public static final int TYPE_DOWNLOAD_COMPLETE = 14;
 	
 	
 	public static final int FROM_SLAVE = 111;
@@ -151,7 +160,15 @@ public abstract class Helper extends Activity{
 	 */
 	public static boolean o_allDone(){
 		boolean ans = true;
-		for(int i=0; i<Helper.o_no_parts; i++){
+		int i;
+		long curTime = System.nanoTime();
+		for(i=1; i<o_no_devices; i++){
+			if(curTime - o_scheduledOn[i] > o_TimeOut){
+				Log.v("AndroidSync TimeOut", curTime + " : " + o_scheduledOn[i] + " : " + o_TimeOut);
+				o_isRunning[i] = false;
+			}
+		}
+		for(i=0; i<o_no_parts; i++){
 			ans = ans && isDone[i];
 		}
 		return ans;
@@ -181,7 +198,8 @@ public abstract class Helper extends Activity{
 		o_offer = 0;
 		o_url = null;		
 		o_no_devices = 1;
-		o_no_parts = 0;		
+		o_no_parts = 0;	
+		o_scheduledOn = new long[7];
 	}
 	
 	static{
@@ -190,6 +208,11 @@ public abstract class Helper extends Activity{
 		isDone = new boolean[o_maxParts];
 		o_isDownloading = new boolean[7];
 		o_isRunning = new boolean[7];
+		o_scheduledOn = new long[7];
+	}
+	
+	public void shutdown(){
+		
 	}
 	
 	

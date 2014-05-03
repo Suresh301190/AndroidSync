@@ -23,8 +23,11 @@ public class MergeFile extends Thread{
 	
 	private final Handler oh_MergeFile;
 	
-	public MergeFile(Handler h){
+	private final BluetoothComm bcomm;
+	
+	public MergeFile(Handler h, BluetoothComm bcomm){
 		oh_MergeFile = h;
+		this.bcomm = bcomm;
 	}
 
 	@Override
@@ -66,7 +69,12 @@ public class MergeFile extends Thread{
 		
 		oh_MergeFile.obtainMessage(Helper.TYPE_UPDATE_PROGRESS, 100, -1, Helper.o_config.getString("isDone")).sendToTarget();
 		Log.v(TAG, Helper.o_config.getString("isDone"));
-		Helper.reset();
+		//Helper.reset();
+		oh_MergeFile.obtainMessage(Helper.TYPE_DOWNLOAD_COMPLETE).sendToTarget();
+		
+		for(int i=1; i<Helper.o_no_devices; i++){
+			bcomm.sendFile(Helper.o_config.getString("path"), Helper.TYPE_DOWNLOAD_COMPLETE, i);
+		}
 	}
 
 

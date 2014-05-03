@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import android.bluetooth.BluetoothAdapter;
@@ -19,6 +20,7 @@ import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.format.Time;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -38,7 +40,7 @@ public class BluetoothComm{
 	private static final UUID MY_UUID = UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
 	private static final String NAME = "AndroidSync";
 
-	private final static String EOI = "O_LAST", BUNDLE = "O_CONFIG", FILE = "O_FILE", N_FILE = "N_FILE", PART = "O_PART";
+	private final static String EOI = "O_LAST", BUNDLE = "O_CONFIG", FILE = "O_FILE", N_FILE = "N_FILE", PART = "O_PART", P_FAIL = "O_FAIL";
 
 	/**
 	 * States of the connection
@@ -59,7 +61,7 @@ public class BluetoothComm{
 
 	/** Service to execute Jobs in Sequential Order*/
 	private static final ExecutorService execGlobal = Executors.newSingleThreadExecutor();
-	private static final ExecutorService execSendReceiveData = Executors.newSingleThreadExecutor();
+	private static final ScheduledExecutorService execSendReceiveData = Executors.newSingleThreadScheduledExecutor();
 
 	/**Local Sequential thread executor*/
 	private ExecutorService execLocal;
@@ -230,7 +232,7 @@ public class BluetoothComm{
 			}
 		};
 
-		execSendReceiveData.execute(r);
+		execSendReceiveData.schedule(r, 2, TimeUnit.SECONDS);
 		//new Thread(r).start();
 	}
 
@@ -262,7 +264,7 @@ public class BluetoothComm{
 			}
 		};
 
-		execSendReceiveData.execute(r);
+		execSendReceiveData.schedule(r, 1, TimeUnit.SECONDS);
 	}
 
 	/**
@@ -271,7 +273,7 @@ public class BluetoothComm{
 	 * @param deviceID device id to which to send
 	 * @param type of message {@link Helper} like TYPE_BUNDLE, TYPE_PART
 	 */
-	public void sendBundle(final Bundle config, final int deviceID,final int type){
+	public synchronized void sendBundle(final Bundle config, final int deviceID,final int type){
 
 		Runnable r = new Runnable() {
 
@@ -280,14 +282,14 @@ public class BluetoothComm{
 				// TODO Auto-generated method stub
 				Log.v(TAG, "Sending Bundle to " + deviceID);
 				final ConnectedThread ConnectedThread = o_Connections.get(deviceID);
-				Log.v(TAG, "Broadcasting TYPE");
+				//Log.v(TAG, "Broadcasting TYPE");
 
 				if(type == Helper.TYPE_BUNDLE) ConnectedThread.write(BUNDLE);
 				else if(type == Helper.TYPE_DOWNLOAD_PART_REQUEST) ConnectedThread.write(PART);
 				for(String key:config.keySet()){
 					Object obj = config.get(key);
 					ConnectedThread.write((key + " " + obj));
-					Log.v(TAG, "Sending " + key + " " + obj);
+					//Log.v(TAG, "Sending " + key + " " + obj);
 				}
 
 				// To signal end of input
@@ -295,7 +297,7 @@ public class BluetoothComm{
 			}
 		};
 
-		execSendReceiveData.execute(r);
+		execSendReceiveData.schedule(r, 1, TimeUnit.SECONDS);
 	}
 
 	public void startExecGlobal(){
@@ -315,6 +317,22 @@ public class BluetoothComm{
 			Log.v(TAG, "In isFinished " + ie.toString());
 		}
 		return shutdown;
+	}
+	
+	public void sendPartFail(final int partID, final int deviceID){
+		
+		Runnable r = new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				o_ConnectedThread.write(P_FAIL);
+				o_ConnectedThread.writeInt(partID);
+				o_ConnectedThread.writeInt(deviceID);
+			}
+		};
+		
+		execSendReceiveData.schedule(r, 1, TimeUnit.SECONDS);
 	}
 
 	private class AcceptThread extends Thread {
@@ -489,13 +507,44 @@ public class BluetoothComm{
 					}
 					else if(s.equals(N_FILE)){
 
+						//*
 						Log.v(TAG, "Receiving File Only"); int part, deviceID;
 						Message msg = oh_Handler.obtainMessage(Helper.TYPE_ONLY_PART_SLAVE, 
 								part = ByteStream.toInt(mmInStream), deviceID = ByteStream.toInt(mmInStream), null);
 
 						Log.v(TAG, "part id: " + part  + " DeviceID : " + deviceID);
-						receiveFile(Helper.o_path + "/tmp" + part);
+						if(part != Helper.TYPE_DOWNLOAD_COMPLETE) receiveFile(Helper.o_path + "/tmp" + part);
+						else receiveFile(Helper.o_path + Helper.o_filename);
 						oh_Handler.sendMessage(msg);
+						
+						//*/
+						Runnable r = new Runnable() {
+							
+							@Override
+							public void run() {
+								// TODO Auto-generated method stub
+								Log.v(TAG, "Receiving File Only"); int part, deviceID;
+								Message msg;
+								try {
+									msg = oh_Handler.obtainMessage(Helper.TYPE_ONLY_PART_SLAVE, 
+											part = ByteStream.toInt(mmInStream), deviceID = ByteStream.toInt(mmInStream), null);
+									
+									Log.v(TAG, "part id: " + part  + " DeviceID : " + deviceID);
+									receiveFile(Helper.o_path + "/tmp" + part);
+									oh_Handler.sendMessage(msg);
+								} catch (IOException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
+						};
+						
+						//execSendReceiveData.schedule(r, 2, TimeUnit.SECONDS);
+					}
+					else if(s.equals(P_FAIL)){
+						int id = ByteStream.toInt(mmInStream), deviceID = ByteStream.toInt(mmInStream);
+						oh_Handler.obtainMessage(Helper.TYPE_NAK_PART, id, deviceID, null);
+						Log.v(TAG, "Part" + id + " failed, on device id : " + deviceID + " Adding back to Main Pool");
 					}
 					else{
 						oh_Handler.obtainMessage(Helper.TYPE_STRING, -1, -1, s).sendToTarget();
@@ -542,7 +591,7 @@ public class BluetoothComm{
 
 				String read;
 				while(!(read = ByteStream.toString(mmInStream)).equals(EOI)){
-					Log.v(TAG, "getB  : " + read);
+					//Log.v(TAG, "getB  : " + read);
 					String[] part = read.split(" ");
 					if(_conString.contains(part[0])){
 						b.putString(part[0], part[1]);

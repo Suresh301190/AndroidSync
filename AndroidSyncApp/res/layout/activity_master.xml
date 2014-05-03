@@ -16,45 +16,6 @@
     </EditText>
 
     <Button
-        android:id="@+id/o_Button_dl"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/o_URL_box_m"
-        android:layout_marginTop="27dp"
-        android:onClick="download_file"
-        android:text="@string/o_download_m" />
-
-    <TextView
-        android:id="@+id/o_dl_update"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
-        android:text="@string/o_update"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-    <ProgressBar
-        android:id="@+id/o_progMaster"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/o_Send"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/o_Button_dl" />
-
-    <Button
-        android:id="@+id/o_Send"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/o_dl_update"
-        android:layout_alignParentLeft="true"
-        android:text="@string/o_sMsg" 
-        android:onClick="sendMsg"/>
-
-    <Button
         android:id="@+id/om_reset"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -63,5 +24,65 @@
         android:layout_marginBottom="19dp"
         android:text="@string/os_click_reset" 
         android:onClick="reset"/>
+
+    <TextView
+        android:id="@+id/o_dl_update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/o_progMaster"
+        android:layout_marginTop="28dp"
+        android:text="@string/o_update"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <Button
+        android:id="@+id/o_defVideo"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/o_defImage"
+        android:layout_toRightOf="@+id/o_defImage"
+        android:onClick="videoURL"
+        android:text="@string/def_Video"/>
+
+    <Button
+        android:id="@+id/o_defImage"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/o_Button_dl"
+        android:onClick="imageURL"
+        android:text="@string/def_Image" />
+
+    <Button
+        android:id="@+id/o_Button_dl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/o_URL_box_m"
+        android:onClick="download_file"
+        android:text="@string/o_download_m" />
+
+    <ProgressBar
+        android:id="@+id/o_progMaster"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/o_defImage"
+        android:layout_marginTop="24dp" />
+
+    <Button
+        android:id="@+id/o_defFile"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/o_defVideo"
+        android:layout_alignBottom="@+id/o_defVideo"
+        android:layout_toRightOf="@+id/o_defVideo"
+        android:onClick="fileURL"
+        android:text="@string/def_File" />
 
 </RelativeLayout>

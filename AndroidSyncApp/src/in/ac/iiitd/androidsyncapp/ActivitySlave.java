@@ -7,6 +7,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ActivitySlave extends Activity{
 
@@ -48,11 +49,20 @@ public class ActivitySlave extends Activity{
 				os_url.setText(Helper.o_config.getString("url"));
 				break;
 				
+			case Helper.TYPE_DOWNLOAD_COMPLETE:
+				os_update.setText((String) msg.obj);
+				break;
+				
 			}
 		}	
 	};
 	
 	public void reset(View view){
 		sServer.close();
+	}
+	
+	private void o_showToast(String o_msg){
+		Toast.makeText(getApplicationContext(), o_msg
+				, Toast.LENGTH_LONG).show();
 	}
 }

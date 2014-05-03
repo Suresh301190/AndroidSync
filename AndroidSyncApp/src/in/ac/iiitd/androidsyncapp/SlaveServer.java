@@ -15,6 +15,9 @@ class SlaveServer extends Thread{
 
 	private static final Handler oh_SlaveServer = new Handler(){
 
+		Bundle b;
+		boolean set = false;
+		
 		@Override
 		public void handleMessage(Message msg){
 			switch(msg.what){
@@ -42,6 +45,11 @@ class SlaveServer extends Thread{
 				
 				break;
 			case Helper.TYPE_DOWNLOAD_PART_REQUEST:
+				if(!set){
+					String o_s = ((Bundle) msg.obj).getString("url");					
+					Helper.o_filename = o_s.substring(o_s.lastIndexOf('/'));
+					set = true;
+				}
 				new DownloadFile((Bundle) msg.obj, oh_SlaveServer).start();
 				break;
 				
@@ -53,7 +61,7 @@ class SlaveServer extends Thread{
 				
 			case Helper.TYPE_FORWARD_PART:
 				
-				Bundle b = (Bundle) msg.obj;
+				b = (Bundle) msg.obj;
 				
 				// Redirect Message to Slave Activity
 				ActivitySlave.oh_Slave.obtainMessage(Helper.TYPE_STRING, -1, -1, 
@@ -62,6 +70,16 @@ class SlaveServer extends Thread{
 				Log.v(TAG, "Sending Part" + b.getInt("part") + " to Master");				
 				//bcomm.sendFile((Bundle) msg.obj, Helper.TYPE_FORWARD_PART);
 				bcomm.sendFile(b.getString("path"), b.getInt("id"), b.getInt("deviceID"));
+				
+			case Helper.TYPE_NAK_PART:
+				b = (Bundle) msg.obj;
+				
+				break;
+				
+			default:
+				if(msg.arg1 == Helper.TYPE_DOWNLOAD_COMPLETE){
+					ActivitySlave.oh_Slave.obtainMessage(Helper.TYPE_DOWNLOAD_COMPLETE, "Sucess Please view the file");
+				}
 			}
 		}	
 	};
