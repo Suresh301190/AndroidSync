@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
@@ -23,8 +21,6 @@ import android.util.SparseArray;
  *
  */
 public abstract class Helper extends Activity{
-	
-	public static ExecutorService seqExec = Executors.newSingleThreadExecutor();
 
 	public static final int o_maxParts = 8;
 	
@@ -149,11 +145,10 @@ public abstract class Helper extends Activity{
 	public static final int TYPE_NAK_PART = 13;
 	public static final int TYPE_DOWNLOAD_COMPLETE = 14;
 	public static final int TYPE_DOWNLOAD_BAR_UPDATE = 15;
+	public static final int TYPE_DOWNLOAD_BAR_SET = 16;
 	
-	
-	public static final int FROM_SLAVE = 111;
-	public static final int FROM_MASTER = 112;
-		
+	public static final int TYPE_FROM_SLAVE = 111;
+	public static final int TYPE_FROM_MASTER = 112;
 	
 	/**
 	 * To check if all process is done
@@ -185,6 +180,7 @@ public abstract class Helper extends Activity{
 		o_progress = Math.min(o_progress + o_size, o_config.getInt("len"));		
 	}
 
+	//*
 	public static void reset() {
 		// TODO Auto-generated method stub
 		o_size = 0x80000;
@@ -201,6 +197,7 @@ public abstract class Helper extends Activity{
 		o_no_parts = 0;	
 		o_scheduledOn = new long[7];
 	}
+	//*/
 	
 	static{
 		//Make directory /AndroidSync

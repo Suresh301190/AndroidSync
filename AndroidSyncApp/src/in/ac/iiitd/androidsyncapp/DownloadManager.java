@@ -1,8 +1,5 @@
 package in.ac.iiitd.androidsyncapp;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -26,10 +23,6 @@ public class DownloadManager extends Thread{
 	 * isDone -- (String) Message regarding the part file success/failure.
 	 */
 	private Bundle o_config;
-	
-	private final static ExecutorService execDownloadQueue = Executors.newCachedThreadPool();
-
-	private final ExecutorService seq_DownloadManager;
 
 	public final BluetoothComm bcomm;
 
@@ -37,8 +30,7 @@ public class DownloadManager extends Thread{
 	
 	public DownloadManager(Handler h, BluetoothComm comm){
 		oh_Manager = h;
-		bcomm = comm;	
-		seq_DownloadManager = Executors.newSingleThreadExecutor();
+		bcomm = comm;
 	}
 
 	@Override
@@ -48,6 +40,7 @@ public class DownloadManager extends Thread{
 		Log.v(TAG, "No. of Devices found " + Helper.o_no_devices);
 		try{
 
+			/*
 			Runnable broadCastBundle = new Runnable() {
 
 				@Override
@@ -60,7 +53,7 @@ public class DownloadManager extends Thread{
 					}
 				}
 			};
-
+			//*/
 			//seq_DownloadManager.execute(broadCastBundle);
 
 			int deviceID = 0;

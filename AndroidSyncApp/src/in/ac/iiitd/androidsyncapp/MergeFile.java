@@ -8,7 +8,6 @@ import java.io.OutputStream;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
 /**
@@ -73,7 +72,7 @@ public class MergeFile extends Thread{
 		oh_MergeFile.obtainMessage(Helper.TYPE_DOWNLOAD_COMPLETE).sendToTarget();
 		
 		for(int i=1; i<Helper.o_no_devices; i++){
-			bcomm.sendFile(Helper.o_config.getString("path"), Helper.TYPE_DOWNLOAD_COMPLETE, i);
+			bcomm.sendFile(Helper.o_path + Helper.o_config.getString("name"), Helper.TYPE_DOWNLOAD_COMPLETE, i);
 		}
 	}
 

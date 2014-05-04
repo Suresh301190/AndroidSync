@@ -5,6 +5,7 @@ import java.net.URLConnection;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -38,8 +39,6 @@ public class ActivityMaster extends Activity{
 
 	public static ProgressBar o_progBar;
 
-	private static TextView o_update;
-
 	private BluetoothComm bcomm;
 
 	/**
@@ -48,15 +47,14 @@ public class ActivityMaster extends Activity{
 	public static BluetoothAdapter o_myBT; 
 
 	private boolean def = true;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.v(o_master, "Switched to Master");
 		setContentView(R.layout.activity_master);
 		o_myBT = BluetoothAdapter.getDefaultAdapter();
-		o_progBar = (ProgressBar) findViewById(R.id.o_progMaster);
-		o_update = (TextView) findViewById(R.id.o_dl_update);		
+		o_progBar = (ProgressBar) findViewById(R.id.o_progMaster);	
 	}
 
 	public void download_file(View view){
@@ -80,7 +78,7 @@ public class ActivityMaster extends Activity{
 				//Helper.o_config.putString("url", "https://dl.dropbox.com/u/9097066/amc.mp3");
 				Helper.o_config.putInt("id", 1);
 
-				execMaster.execute(new StartOfMain(oh_Master, Helper.seqExec));
+				execMaster.execute(new StartOfMain(oh_Master, Executors.newSingleThreadExecutor()));
 				//new StartOfMain(oh_Master, Helper.seqExec).start();
 				//bcomm = new BluetoothComm(oh_Master, null);
 				//bcomm.connect(o_myBT.getRemoteDevice("41:2F:C6:0A:F5:52"));		// Mom's
@@ -89,7 +87,7 @@ public class ActivityMaster extends Activity{
 			else{
 				o_showToast("Downloading from URL");
 				Helper.o_config.putInt("id", 1);
-				execMaster.execute(new StartOfMain(oh_Master, Helper.seqExec));
+				execMaster.execute(new StartOfMain(oh_Master, Executors.newSingleThreadExecutor()));
 			}
 		}catch(Exception e){
 			Log.v(o_master, e.toString());
@@ -127,6 +125,7 @@ public class ActivityMaster extends Activity{
 
 			case Helper.TYPE_FORWARD_PART:
 				Helper.o_partDone(((Bundle) msg.obj).getInt("id"));
+				o_showToast("Received Part" + ((Bundle) msg.obj).getInt("id") + " from slave");
 				break;
 
 			case Helper.TYPE_ONLY_PART_SLAVE:
@@ -137,31 +136,44 @@ public class ActivityMaster extends Activity{
 
 			case Helper.TYPE_NAK_PART:
 				Helper.o_isRunning[msg.arg1] = false;
+				break;
 
-			case Helper.TYPE_DOWNLOAD_COMPLETE:
+			case Helper.TYPE_DOWNLOAD_BAR_UPDATE:
+				o_progBar.incrementProgressBy(msg.arg1);
+				break;
 
+			case Helper.TYPE_DOWNLOAD_BAR_SET:
+				o_progBar.setProgress(0);
+				break;
+
+			case Helper.TYPE_FROM_MASTER:
+				o_showToast("Success Connected to " + msg.obj);
+				break;
 			}
 		}
 	};
 
 	public void imageURL(View view){
+		Helper.reset();
 		Helper.o_config = new Bundle();
-		Helper.o_config.putString("url", "https://db.tt/Y0WKFFuR");
+		Helper.o_config.putString("url", "https://dl.dropbox.com/u/9097066/image.png");
 		((EditText) findViewById(R.id.o_URL_box_m)).setText(Helper.o_config.getString("url"));
 		def = false;
 	}
 
 	public void videoURL(View view){
+		Helper.reset();
 		Helper.o_config = new Bundle();
-		Helper.o_config.putString("url", "https://db.tt/Y0WKFFuR");
+		Helper.o_config.putString("url", "https://dl.dropbox.com/u/9097066/barfi.mp4");
 		((EditText) findViewById(R.id.o_URL_box_m)).setText(Helper.o_config.getString("url"));
-		
+
 		def = false;
 	}
 
-	public void fileURL(View view){
+	public void mp3URL(View view){
+		Helper.reset();
 		Helper.o_config = new Bundle();
-		Helper.o_config.putString("url", "https://db.tt/Y0WKFFuR");
+		Helper.o_config.putString("url", "https://dl.dropboxusercontent.com/u/108785914/BlueSwede.mp3");
 		((EditText) findViewById(R.id.o_URL_box_m)).setText(Helper.o_config.getString("url"));
 		def = false;
 	}

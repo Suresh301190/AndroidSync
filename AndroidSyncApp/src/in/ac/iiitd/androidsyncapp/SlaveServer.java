@@ -46,7 +46,8 @@ class SlaveServer extends Thread{
 				break;
 			case Helper.TYPE_DOWNLOAD_PART_REQUEST:
 				if(!set){
-					String o_s = ((Bundle) msg.obj).getString("url");					
+					String o_s = ((Bundle) msg.obj).getString("url");
+					ActivitySlave.oh_Slave.obtainMessage(Helper.TYPE_URL, o_s);
 					Helper.o_filename = o_s.substring(o_s.lastIndexOf('/'));
 					Log.v(TAG, "File Name : " + Helper.o_filename);
 					set = true;
@@ -75,12 +76,18 @@ class SlaveServer extends Thread{
 				
 			case Helper.TYPE_NAK_PART:		// for future
 				b = (Bundle) msg.obj;
-				
 				break;
 				
 			case Helper.TYPE_DOWNLOAD_BAR_UPDATE:
-				
+				ActivitySlave.oh_Slave.obtainMessage(Helper.TYPE_DOWNLOAD_BAR_UPDATE, msg.arg1, -1);
 				break;
+				
+			case Helper.TYPE_DOWNLOAD_BAR_SET:
+				ActivitySlave.oh_Slave.obtainMessage(Helper.TYPE_DOWNLOAD_BAR_UPDATE);
+				break;
+				
+			case Helper.TYPE_FROM_MASTER:
+				ActivitySlave.oh_Slave.obtainMessage(Helper.TYPE_FROM_MASTER, msg.obj);
 				
 			default:
 				if(msg.arg1 == Helper.TYPE_DOWNLOAD_COMPLETE){

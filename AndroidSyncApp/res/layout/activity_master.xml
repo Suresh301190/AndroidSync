@@ -84,7 +84,7 @@
         android:layout_alignBaseline="@+id/o_defVideo"
         android:layout_alignBottom="@+id/o_defVideo"
         android:layout_toRightOf="@+id/o_defVideo"
-        android:onClick="fileURL"
+        android:onClick="mp3URL"
         android:text="@string/def_File" />
 
 </RelativeLayout>

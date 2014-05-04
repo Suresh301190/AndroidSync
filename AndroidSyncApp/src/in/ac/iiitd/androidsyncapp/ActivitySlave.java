@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,10 +15,10 @@ public class ActivitySlave extends Activity{
 	private static final String TAG = "AndroidSync ActivitySlave";
 
 	private static TextView os_update, os_url;
-
-	private BluetoothComm bcomm;
 	
 	private SlaveServer sServer;
+	
+	private static ProgressBar os_progBar;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +28,7 @@ public class ActivitySlave extends Activity{
 		setContentView(R.layout.activity_slave);
 		os_update = (TextView) findViewById(R.id.o_slave_updates);
 		os_url = (TextView) findViewById(R.id.os_urlTextView);
-
+		os_progBar = (ProgressBar) findViewById(R.id.os_progress);
 		sServer = new SlaveServer();
 		sServer.start();
 		//bcomm = new BluetoothComm(oh_Slave, null);
@@ -53,6 +54,18 @@ public class ActivitySlave extends Activity{
 				os_update.setText((String) msg.obj);
 				break;
 				
+			case Helper.TYPE_DOWNLOAD_BAR_UPDATE:
+				os_progBar.incrementProgressBy(msg.arg1);
+				break;
+				
+			case Helper.TYPE_DOWNLOAD_BAR_SET:
+				os_progBar.setProgress(0);
+				break;
+				
+			case Helper.TYPE_FROM_MASTER:
+				os_update.setText("Success Connected to " + msg.obj);
+				break;
+				
 			}
 		}	
 	};
@@ -61,7 +74,7 @@ public class ActivitySlave extends Activity{
 		sServer.close();
 	}
 	
-	private void o_showToast(String o_msg){
+	protected void o_showToast(String o_msg){
 		Toast.makeText(getApplicationContext(), o_msg
 				, Toast.LENGTH_LONG).show();
 	}

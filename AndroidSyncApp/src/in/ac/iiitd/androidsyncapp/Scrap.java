@@ -1,31 +1,12 @@
 package in.ac.iiitd.androidsyncapp;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-
 import android.app.Activity;
-import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
-import android.widget.Toast;
 
 public class Scrap extends Activity{
 
-	private static String o_master = "master";
-
 	protected void demo() {
 		// Create Inner Thread Class
+		/*
 		Thread background = new Thread(new Runnable() {
 
 			private final HttpClient Client = new DefaultHttpClient();
@@ -97,5 +78,7 @@ public class Scrap extends Activity{
 
 		// Start Thread
 		//background.start();  //After call start method thread called run Method
+		
+		//*/
 	}
 }

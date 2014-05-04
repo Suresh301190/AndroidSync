@@ -97,13 +97,15 @@ public class StartOfMain extends Thread{
 					Helper.o_pool_config.add(b);		
 				}
 
+				Log.v(TAG, "Waiting For Manager to shut Down");
 				if(bcomm.isFinished()){
 					Log.v(TAG, "Download Manager Started");
 					ActivityMaster.execMaster.execute(new DownloadManager(oh_Start, bcomm));
 				}
 				else{
 					Log.v(TAG, "Error");
-					oh_Start.obtainMessage(Helper.TYPE_STRING, -1, -1, "Error Occured Please try again :)");
+					oh_Start.obtainMessage(Helper.TYPE_STRING, -1, -1, 
+							"Error Occured Please try again :)").sendToTarget();
 				}	
 			}
 			//*/

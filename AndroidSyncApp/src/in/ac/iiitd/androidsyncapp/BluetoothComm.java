@@ -20,7 +20,6 @@ import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.format.Time;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -150,7 +149,7 @@ public class BluetoothComm{
 	 * @param socket socket of remote device
 	 * @param type MESSAGE_TYPE
 	 */
-	private synchronized void  mmSocketFromAccept(BluetoothSocket socket, int MESSAGE_TYPE){
+	private void  mmSocketFromAccept(BluetoothSocket socket, int MESSAGE_TYPE){
 
 		o_ConnectedThread = new ConnectedThread(socket);
 		if(MESSAGE_TYPE == Helper.HANDSHAKE){
@@ -164,6 +163,8 @@ public class BluetoothComm{
 		}
 		o_Connections.put(0, o_ConnectedThread);
 		SlaveServer.master = socket.getRemoteDevice();
+		oh_Handler.obtainMessage(Helper.TYPE_FROM_SLAVE, 
+				socket.getRemoteDevice().getName()).sendToTarget();
 	}
 
 	/**
@@ -171,7 +172,7 @@ public class BluetoothComm{
 	 * @param socket socket of remote device
 	 * @param type MESSAGE_TYPE
 	 */
-	private synchronized void mmSocketFromConnect(BluetoothSocket socket, int type) {
+	private void mmSocketFromConnect(BluetoothSocket socket, int type) {
 		// TODO Auto-generated method stub
 
 		if(type == Helper.HANDSHAKE){
@@ -181,6 +182,8 @@ public class BluetoothComm{
 
 			o_Connections.put(Helper.o_no_devices++, o_ConnectedThread);
 			Log.v(TAG, "Devices Incremented to " + Helper.o_no_devices);
+			oh_Handler.obtainMessage(Helper.TYPE_FROM_SLAVE, 
+					socket.getRemoteDevice().getName()).sendToTarget();
 		}
 	}
 
@@ -200,7 +203,7 @@ public class BluetoothComm{
 	 * @param msg message to send
 	 * @param i deviceID to which needs to send
 	 */
-	public synchronized  void sendMessage(String msg, int i){
+	public void sendMessage(String msg, int i){
 		Log.v(TAG, "Sending Message to " + i);
 
 		synchronized (this) {
@@ -215,14 +218,16 @@ public class BluetoothComm{
 	 * @param partID
 	 * @param deviceID 
 	 */	
-	public synchronized void sendFile(final String path, final int partID, final int deviceID) {
+	public void sendFile(final String path, final int partID, final int deviceID) {
 
 		Runnable r = new Runnable() {
 
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
+				try{
 				o_ConnectedThread = o_Connections.get(deviceID);
+				Log.v(TAG, "Connection Not NULL");
 				final File file = new File(path);
 				Log.v(TAG, "Sending Only Part File");
 				o_ConnectedThread.write(N_FILE);
@@ -230,6 +235,10 @@ public class BluetoothComm{
 				o_ConnectedThread.writeInt(deviceID);
 				//o_ConnectedThread.write(path);
 				o_ConnectedThread.writeFile(file);
+				}catch(Exception e){
+					Log.v(TAG, "sending Only Part " + e.toString());
+					e.printStackTrace();
+				}
 			}
 		};
 
@@ -237,12 +246,12 @@ public class BluetoothComm{
 		//new Thread(r).start();
 	}
 
-	/**
+	/**{@link Deprecated}
 	 * To send the bundle and the file both to the Master
 	 * @param obj {@link Bundle} to send which contains path to file "path"
 	 * @param type Message Type
 	 */
-	public synchronized void sendFile(final Bundle config,final int type) {
+	public void sendFile(final Bundle config,final int type) {
 		// TODO Auto-generated method stub
 
 		Runnable r = new Runnable() {
@@ -275,7 +284,7 @@ public class BluetoothComm{
 	 * @param deviceID device id to which to send
 	 * @param type of message {@link Helper} like TYPE_BUNDLE, TYPE_PART
 	 */
-	public synchronized void sendBundle(final Bundle config, final int deviceID,final int type){
+	public void sendBundle(final Bundle config, final int deviceID,final int type){
 
 		Runnable r = new Runnable() {
 
@@ -310,18 +319,23 @@ public class BluetoothComm{
 	 * To ShutDown the local {@link ExecutorService} and wait until all scheduled tasks are completed.
 	 * @return true if {@link ExecutorService} shutdown normally else false;
 	 */
-	public synchronized  boolean isFinished(){
-		execLocal.shutdown();
+	public  boolean isFinished(){
 		boolean shutdown = false;
 		try{
-			shutdown = execLocal.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+			execLocal.shutdown();
+			Log.v(TAG, "ShutDown Called waiting for 30s max");
+			shutdown = execLocal.awaitTermination(30, TimeUnit.SECONDS);
+			
+			Log.v(TAG, "ShutDown Called waiting for 30s max");
+			shutdown = execLocal.awaitTermination(30, TimeUnit.SECONDS);
+			
 		}catch(InterruptedException ie){
 			Log.v(TAG, "In isFinished " + ie.toString());
 		}
 		return shutdown;
 	}
 
-	public synchronized  void sendPartFail(final int partID, final int deviceID){
+	public void sendPartFail(final int partID, final int deviceID){
 
 		Runnable r = new Runnable() {
 
@@ -522,7 +536,7 @@ public class BluetoothComm{
 						
 						oh_Handler.sendMessage(msg);
 
-						//*/
+						/*/
 						Runnable r = new Runnable() {
 
 							@Override
@@ -546,6 +560,7 @@ public class BluetoothComm{
 								}
 							}
 						};
+						//*/
 
 						//execSendReceiveData.schedule(r, 4, TimeUnit.SECONDS);
 					}

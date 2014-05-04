@@ -19,7 +19,7 @@
     <string name="os_click_reset">Reset</string>
     <string name="def_Image">Default Image</string>
     <string name="def_Video">Default Video</string>
-    <string name="def_File">Default File</string>
+    <string name="def_File">Default mp3</string>
 <!--   <string name="help_m">HELP</string> -->
 
 </resources>

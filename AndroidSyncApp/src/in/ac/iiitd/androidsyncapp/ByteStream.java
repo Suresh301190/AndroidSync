@@ -81,6 +81,7 @@ public class ByteStream {
 		os.flush();
 	}
 
+	@SuppressWarnings("unused")
 	private static byte[] toByteArray(InputStream ins, int an_int)
 			throws java.io.IOException, Exception {
 
@@ -145,6 +146,7 @@ public class ByteStream {
 		toFile(ins, file, len);
 	}
 
+	@SuppressWarnings("resource")
 	public static void toStream(OutputStream os, File file)
 			throws java.io.FileNotFoundException, java.io.IOException {
 
