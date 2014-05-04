@@ -139,11 +139,12 @@ public class ActivityMaster extends Activity{
 				break;
 
 			case Helper.TYPE_DOWNLOAD_BAR_UPDATE:
-				o_progBar.incrementProgressBy(msg.arg1);
+				o_progBar.setProgress(msg.arg1);
 				break;
 
 			case Helper.TYPE_DOWNLOAD_BAR_SET:
 				o_progBar.setProgress(0);
+				o_progBar.setMax(msg.arg1);
 				break;
 
 			case Helper.TYPE_FROM_MASTER:
@@ -164,7 +165,7 @@ public class ActivityMaster extends Activity{
 	public void videoURL(View view){
 		Helper.reset();
 		Helper.o_config = new Bundle();
-		Helper.o_config.putString("url", "https://dl.dropbox.com/u/9097066/barfi.mp4");
+		Helper.o_config.putString("url", "https://dl.dropboxusercontent.com/u/108785914/BlueSwedeHQ.mp4");
 		((EditText) findViewById(R.id.o_URL_box_m)).setText(Helper.o_config.getString("url"));
 
 		def = false;
@@ -193,11 +194,8 @@ public class ActivityMaster extends Activity{
 
 	}
 
-
-
-
 	public void reset(View view){
-
+		
 	}
 
 	/**

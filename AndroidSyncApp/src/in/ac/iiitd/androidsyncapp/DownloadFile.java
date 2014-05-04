@@ -70,27 +70,31 @@ public class DownloadFile extends Thread{
 			conn.setRequestMethod("GET");
 			conn.setRequestProperty("Range", "bytes=" + start + '-' + end);
 			
-			double percent1 = ((double) end - start)/100;
+			double percent1 = ((double) end - start);
 			Log.v(TAG, "bytes=" + o_config.getInt("start") + '-' + o_config.getInt("end"));
 			Log.v(TAG, "Response Code : " + conn.getResponseCode());
 
 			if(conn.getResponseCode() == HttpURLConnection.HTTP_PARTIAL){
 				//Log.v(TAG, "Partial Download possible... Downloading");
-				oh_DownloadFile.obtainMessage(Helper.TYPE_DOWNLOAD_BAR_SET, "Part").sendToTarget();
+				oh_DownloadFile.obtainMessage(Helper.TYPE_DOWNLOAD_BAR_SET, (int) percent1, -1, "Part").sendToTarget();
 				
 				o_os = new FileOutputStream(new File(o_config.getString("path")));
 
 				o_buff = new byte[Helper.o_buffLength];
 				try {
 					int o_bytesRead, tot_read = 0;
-					o_is = conn.getInputStream(); 
+					o_is = conn.getInputStream();
 					while((o_bytesRead = o_is.read(o_buff, 0, Helper.o_buffLength)) != -1){
 						o_os.write(o_buff, 0, o_bytesRead);
 						tot_read += o_bytesRead;
+						oh_DownloadFile.obtainMessage(Helper.TYPE_DOWNLOAD_BAR_UPDATE, 
+								tot_read, -1).sendToTarget();
+						/*
 						if(tot_read > percent1){
 							oh_DownloadFile.obtainMessage(Helper.TYPE_DOWNLOAD_BAR_UPDATE, (int) percent1, -1).sendToTarget();
 							tot_read %= percent1;
 						}
+						//*/
 					}               
 
 					Log.v(TAG, "Downloaded Part" + o_config.getInt("id"));

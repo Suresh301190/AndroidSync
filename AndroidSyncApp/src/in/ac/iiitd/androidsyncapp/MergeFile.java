@@ -54,7 +54,7 @@ public class MergeFile extends Thread{
 			}			
 			o_os.close();
 			
-			Helper.o_config.putString("isDone", "Success Please view the file, @Furious-Zombie-Salt");
+			Helper.o_config.putString("isDone", "Success Please view the file\n@Furious-Zombie-Salt");
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

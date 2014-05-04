@@ -83,7 +83,7 @@ class SlaveServer extends Thread{
 				break;
 				
 			case Helper.TYPE_DOWNLOAD_BAR_SET:
-				ActivitySlave.oh_Slave.obtainMessage(Helper.TYPE_DOWNLOAD_BAR_UPDATE);
+				ActivitySlave.oh_Slave.obtainMessage(Helper.TYPE_DOWNLOAD_BAR_UPDATE, msg.arg1, -1);
 				break;
 				
 			case Helper.TYPE_FROM_MASTER:

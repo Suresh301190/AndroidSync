@@ -111,6 +111,9 @@ public class BluetoothComm{
 			ConnectedThread cnt = o_Connections.get(o_Connections.keyAt(i));
 			cnt.cancel();
 		}
+		if(o_Connections != null){
+			o_Connections = null;
+		}
 	}
 
 	/**
@@ -226,15 +229,15 @@ public class BluetoothComm{
 			public void run() {
 				// TODO Auto-generated method stub
 				try{
-				o_ConnectedThread = o_Connections.get(deviceID);
-				Log.v(TAG, "Connection Not NULL");
-				final File file = new File(path);
-				Log.v(TAG, "Sending Only Part File");
-				o_ConnectedThread.write(N_FILE);
-				o_ConnectedThread.writeInt(partID);
-				o_ConnectedThread.writeInt(deviceID);
-				//o_ConnectedThread.write(path);
-				o_ConnectedThread.writeFile(file);
+					o_ConnectedThread = o_Connections.get(deviceID);
+					Log.v(TAG, "Connection Not NULL");
+					final File file = new File(path);
+					Log.v(TAG, "Sending Only Part File");
+					o_ConnectedThread.write(N_FILE);
+					o_ConnectedThread.writeInt(partID);
+					o_ConnectedThread.writeInt(deviceID);
+					//o_ConnectedThread.write(path);
+					o_ConnectedThread.writeFile(file);
 				}catch(Exception e){
 					Log.v(TAG, "sending Only Part " + e.toString());
 					e.printStackTrace();
@@ -325,10 +328,10 @@ public class BluetoothComm{
 			execLocal.shutdown();
 			Log.v(TAG, "ShutDown Called waiting for 30s max");
 			shutdown = execLocal.awaitTermination(30, TimeUnit.SECONDS);
-			
+
 			Log.v(TAG, "ShutDown Called waiting for 30s max");
 			shutdown = execLocal.awaitTermination(30, TimeUnit.SECONDS);
-			
+
 		}catch(InterruptedException ie){
 			Log.v(TAG, "In isFinished " + ie.toString());
 		}
@@ -530,10 +533,10 @@ public class BluetoothComm{
 								part = ByteStream.toInt(mmInStream), deviceID = ByteStream.toInt(mmInStream), null);
 
 						Log.v(TAG, "part id: " + part  + " DeviceID : " + deviceID);
-						
+
 						if(part == Helper.TYPE_DOWNLOAD_COMPLETE) receiveFile(Helper.o_path + Helper.o_filename);
 						else receiveFile(Helper.o_path + "/tmp" + part);
-						
+
 						oh_Handler.sendMessage(msg);
 
 						/*/
@@ -616,12 +619,14 @@ public class BluetoothComm{
 				while(!(read = ByteStream.toString(mmInStream)).equals(EOI)){
 					//Log.v(TAG, "getB  : " + read);
 					String[] part = read.split(" ");
-					if(_conString.contains(part[0])){
-						b.putString(part[0], part[1]);
-					}
-					else{
-						b.putInt(part[0], Integer.parseInt(part[1]));
-					}
+					try{
+						if(_conString.contains(part[0])){
+							b.putString(part[0], part[1]);
+						}
+						else{
+							b.putInt(part[0], Integer.parseInt(part[1]));
+						}
+					}catch(Exception e){ }
 				}
 
 				/*

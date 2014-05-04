@@ -55,10 +55,11 @@ public class ActivitySlave extends Activity{
 				break;
 				
 			case Helper.TYPE_DOWNLOAD_BAR_UPDATE:
-				os_progBar.incrementProgressBy(msg.arg1);
+				os_progBar.setProgress(msg.arg1);
 				break;
 				
 			case Helper.TYPE_DOWNLOAD_BAR_SET:
+				os_progBar.setMax(msg.arg1);
 				os_progBar.setProgress(0);
 				break;
 				
